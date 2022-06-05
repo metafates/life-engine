@@ -1,0 +1,7 @@
+cradle:
+  cabal:
+    - path: "src"
+      component: "lib:life-engine"
+
+    - path: "app/Main.hs"
+      component: "life-engine:exe:life-engine"
