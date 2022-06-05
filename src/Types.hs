@@ -40,11 +40,15 @@ data Organism = Organism
     direction :: Maybe Direction,
     foodEaten :: Int,
     mutationFactor :: Double,
-    lifespanFactor :: Double
+    lifespanFactor :: Double,
+    lookRange :: Int
   }
 
 -- | World
-newtype World = World {grid :: [Cell]}
+data World = World
+  { grid :: [Cell],
+    fps :: Int
+  }
 
 class Drawable a where
   draw :: a -> CodeWorld.Picture
