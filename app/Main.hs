@@ -1,4 +1,6 @@
 module Main where
 
+import Engine (start)
+
 main :: IO ()
-main = putStrLn "Hello, Haskell!"
+main = start
