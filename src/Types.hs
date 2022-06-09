@@ -1,6 +1,8 @@
 module Types where
 
 import qualified CodeWorld
+import Data.Map (Map)
+import qualified Data.Map as Map
 import Utilities (bimap)
 
 -- | (X, Y) coordinates
@@ -29,7 +31,6 @@ data CellState
 -- | Cell
 data Cell = Cell
   { state :: CellState,
-    coords :: Coords,
     size :: Double
   }
 
@@ -46,7 +47,7 @@ data Organism = Organism
 
 -- | World
 data World = World
-  { grid :: [Cell],
+  { grid :: Map Coords Cell,
     fps :: Int
   }
 
@@ -54,23 +55,25 @@ class Drawable a where
   draw :: a -> CodeWorld.Picture
 
 instance Drawable Cell where
-  draw cell = positioned figure
+  draw cell = figure
     where
       size' = size cell
       square = CodeWorld.solidRectangle size' size'
-      positioned =
-        let (x, y) = bimap ((* size') . fromIntegral) $ coords cell
-         in CodeWorld.translated x y
+      -- TODO: draw it in different colors
       figure = case state cell of
         Mouth -> square
         Producer -> square
         Mover -> square
         Killer -> square
         Armor -> square
-        Eye _ -> square
+        Eye direction -> square -- TODO: draw eye with direction
         Food -> square
         Empty -> square
         Wall -> square
 
 instance Drawable World where
-  draw = CodeWorld.pictures . map draw . grid
+  draw = CodeWorld.pictures . map drawAtCoords . Map.toList . grid
+    where
+      drawAtCoords (coords, cell) =
+        let (x', y') = bimap ((*) (size cell) . fromIntegral) coords
+         in CodeWorld.translated x' y' (draw cell)

@@ -1,15 +1,15 @@
 module Engine where
 
 import qualified CodeWorld
+import qualified Data.Map as Map
 import Types
 
-start :: IO ()
-start = CodeWorld.drawingOf $ draw world
+defaultWorld :: World
+defaultWorld = World grid' 60
   where
-    world = World grid' 60
-    grid' =
-      let size' = 1
-       in [ Cell {state = Empty, size = size', coords = (x, y)}
-            | x <- [-5 .. 5],
-              y <- [-5 .. 5]
-          ]
+    grid' = Map.fromList $ zip coords (repeat cell)
+    cell = Cell {state = Empty, size = 1}
+    coords = [(x, y) | x <- [-5 .. 5], y <- [-5 .. 5]]
+
+start :: IO ()
+start = CodeWorld.drawingOf (draw defaultWorld)
