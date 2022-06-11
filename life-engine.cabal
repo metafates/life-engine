@@ -36,6 +36,7 @@ library
         base ^>=4.14.3.0,
         text,
         containers,
+        random,
         codeworld-api
 
 
@@ -54,6 +55,7 @@ executable life-engine
         codeworld-api,
         text,
         containers,
+        random,
         life-engine
 
     hs-source-dirs:   app
