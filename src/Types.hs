@@ -1,8 +1,10 @@
 module Types where
 
 import qualified CodeWorld
+import Data.Function (on)
 import Data.Map (Map)
 import qualified Data.Map as Map
+import System.Random (StdGen)
 import Utilities (bimap)
 
 -- | (X, Y) coordinates
@@ -31,23 +33,34 @@ data CellState
 -- | Cell
 data Cell = Cell
   { state :: CellState,
-    size :: Double
+    size :: Double,
+    coords :: Coords
   }
 
 -- | Organism
 data Organism = Organism
   { anatomy :: [Cell],
     health :: Int,
-    direction :: Maybe Direction,
-    foodEaten :: Int,
+    moveDirection :: Maybe Direction,
+    rotateDirection :: Maybe Direction,
+    foodCollected :: Int,
+    lifetime :: Double,
     mutationFactor :: Double,
     lifespanFactor :: Double,
-    lookRange :: Int
+    lookRange :: Int,
+    randomGen :: StdGen
   }
 
 -- | World
 data World = World
-  { grid :: Map Coords Cell,
+  { -- | Stores only non organism cells (Walls, food & empty cells)
+    grid :: Map Coords Cell,
+    -- | Organisms
+    organisms :: Map [Coords] Organism
+  }
+
+data Engine = Engine
+  { world :: World,
     fps :: Int
   }
 
@@ -55,8 +68,12 @@ class Drawable a where
   draw :: a -> CodeWorld.Picture
 
 instance Drawable Cell where
-  draw cell = figure
+  draw cell = positioned figure
     where
+      positioned =
+        let (x', y') = bimap ((*) (size cell) . fromIntegral) (coords cell)
+         in CodeWorld.translated x' y'
+
       size' = size cell
       square = CodeWorld.solidRectangle size' size'
       -- TODO: draw it in different colors
@@ -72,8 +89,7 @@ instance Drawable Cell where
         Wall -> square
 
 instance Drawable World where
-  draw = CodeWorld.pictures . map drawAtCoords . Map.toList . grid
+  draw world = ((<>) `on` CodeWorld.pictures) livingCells nonLivingCells
     where
-      drawAtCoords (coords, cell) =
-        let (x', y') = bimap ((*) (size cell) . fromIntegral) coords
-         in CodeWorld.translated x' y' (draw cell)
+      livingCells = concatMap (map draw . anatomy) (Map.elems $ organisms world)
+      nonLivingCells = map draw $ Map.elems $ grid world
