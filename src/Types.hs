@@ -24,7 +24,7 @@ data CellState
   | Mover
   | Killer
   | Armor
-  | Eye Direction
+  | Eye
   | Food
   | Empty
   | Wall
@@ -83,7 +83,7 @@ instance Drawable Cell where
         Mover -> square
         Killer -> square
         Armor -> square
-        Eye direction -> square -- TODO: draw eye with direction
+        Eye -> square -- TODO: draw eye with direction
         Food -> square
         Empty -> square
         Wall -> square
