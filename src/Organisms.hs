@@ -1,6 +1,7 @@
 module Organisms where
 
 import Data.List (find)
+import qualified Data.Map as Map
 import Types
 
 -- | Checks if organism has a specific cell state in its anatomy
@@ -31,19 +32,40 @@ foodNeeded :: Organism -> Int
 foodNeeded = undefined
 
 -- | Try to move at next direction
--- TODO
-attemptMove :: (Organism, World) -> (Organism, World)
+-- TODO: move organism to the next direction
+attemptMove :: Organism -> World -> (Organism, World)
 attemptMove = undefined
 
 -- | Try to rotate at next direction
--- TODO
-attemptRotate :: (Organism, World) -> (Organism, World)
+-- TODO: rotate organism at the direction and update direction
+attemptRotate :: Organism -> World -> (Organism, World)
 attemptRotate = undefined
 
 -- | Kill an organism
--- TODO
-die :: (Organism, World) -> World
+-- TODO: remove organism from the world
+die :: Organism -> World -> World
 die = undefined
 
-makeFood :: (Organism, World) -> (Organism, World)
+-- | Activates producer cell
+-- TODO: spawn food cells in adjacent coordinates
+makeFood :: Organism -> World -> (Organism, World)
 makeFood = undefined
+
+-- | Gets organism at given coordinates of 1 cell
+organismAtCoords :: Coords -> World -> Maybe Organism
+organismAtCoords coords world =
+  case find (elem coords) $ Map.keys $ organisms world of
+    Nothing -> Nothing
+    Just key -> Map.lookup key (organisms world)
+
+-- | Gets coordinates of organism cells
+-- TODO
+organismBodyCoords :: Organism -> [Coords]
+organismBodyCoords = undefined
+
+-- | Adds organism to the world
+-- TODO: use organism body size as key and organism as value
+addOrganism :: Organism -> World -> World
+addOrganism organism world = world {organisms = organisms'}
+  where
+    organisms' = undefined
