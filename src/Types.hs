@@ -38,6 +38,7 @@ data Cell = Cell
   }
 
 -- | Organism
+-- TODO: write comments to describe each field
 data Organism = Organism
   { anatomy :: [Cell],
     health :: Int,
@@ -83,13 +84,16 @@ instance Drawable Cell where
         Mover -> square
         Killer -> square
         Armor -> square
-        Eye -> square -- TODO: draw eye with direction
+        Eye -> square -- Do not forget about organism direction
         Food -> square
         Empty -> square
         Wall -> square
 
 instance Drawable World where
-  draw world = ((<>) `on` CodeWorld.pictures) livingCells nonLivingCells
+  draw w = ((<>) `on` CodeWorld.pictures) (livingCells w) (nonLivingCells w)
     where
-      livingCells = concatMap (map draw . anatomy) (Map.elems $ organisms world)
-      nonLivingCells = map draw $ Map.elems $ grid world
+      livingCells = concatMap (map draw . anatomy) . Map.elems . organisms
+      nonLivingCells = map draw . Map.elems . grid
+
+instance Drawable Engine where
+  draw = draw . world

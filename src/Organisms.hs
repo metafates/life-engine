@@ -33,22 +33,28 @@ foodNeeded = undefined
 
 -- | Try to move at next direction
 -- TODO: move organism to the next direction
-attemptMove :: Organism -> World -> (Organism, World)
+attemptMove :: (Organism -> World) -> (Organism, World)
 attemptMove = undefined
 
 -- | Try to rotate at next direction
 -- TODO: rotate organism at the direction and update direction
-attemptRotate :: Organism -> World -> (Organism, World)
+attemptRotate :: (Organism -> World) -> (Organism, World)
 attemptRotate = undefined
+
+-- | Get next direction
+-- North -> East -> South -> West -> repeat
+-- TODO
+nextDirection :: Direction -> Direction
+nextDirection = undefined
 
 -- | Kill an organism
 -- TODO: remove organism from the world
-die :: Organism -> World -> World
+die :: (Organism -> World) -> World
 die = undefined
 
 -- | Activates producer cell
 -- TODO: spawn food cells in adjacent coordinates
-makeFood :: Organism -> World -> (Organism, World)
+makeFood :: (Organism -> World) -> (Organism, World)
 makeFood = undefined
 
 -- | Gets organism at given coordinates of 1 cell
@@ -59,7 +65,9 @@ organismAtCoords coords world =
     Just key -> Map.lookup key (organisms world)
 
 -- | Gets coordinates of organism cells
--- TODO
+-- Returned list of coordinates is *always* in the same order
+-- TODO: use pairing function to sort coordinates by
+-- HINT: Use `cantor` from Utils.hs
 organismBodyCoords :: Organism -> [Coords]
 organismBodyCoords = undefined
 

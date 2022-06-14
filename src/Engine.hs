@@ -19,8 +19,8 @@ defaultWorld = World grid' organisms'
             y <- [-5 .. 5]
         ]
 
-defaultEngine :: Engine
-defaultEngine = Engine {world = defaultWorld, fps = 60}
+defaultEngineFor :: World -> Engine
+defaultEngineFor w = Engine {world = w, fps = 60}
 
 start :: IO ()
-start = CodeWorld.drawingOf $ draw $ world defaultEngine
+start = CodeWorld.drawingOf (draw defaultWorld)
