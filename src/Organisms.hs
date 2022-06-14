@@ -1,5 +1,6 @@
 module Organisms where
 
+import Data.Bifunctor (first)
 import Data.List (find)
 import qualified Data.Map as Map
 import Types
@@ -33,12 +34,12 @@ foodNeeded = undefined
 
 -- | Try to move at next direction
 -- TODO: move organism to the next direction
-attemptMove :: (Organism -> World) -> (Organism, World)
+attemptMove :: (Organism, World) -> (Organism, World)
 attemptMove = undefined
 
 -- | Try to rotate at next direction
 -- TODO: rotate organism at the direction and update direction
-attemptRotate :: (Organism -> World) -> (Organism, World)
+attemptRotate :: (Organism, World) -> (Organism, World)
 attemptRotate = undefined
 
 -- | Get next direction
@@ -49,12 +50,12 @@ nextDirection = undefined
 
 -- | Kill an organism
 -- TODO: remove organism from the world
-die :: (Organism -> World) -> World
+die :: (Organism, World) -> World
 die = undefined
 
 -- | Activates producer cell
 -- TODO: spawn food cells in adjacent coordinates
-makeFood :: (Organism -> World) -> (Organism, World)
+makeFood :: (Organism, World) -> (Organism, World)
 makeFood = undefined
 
 -- | Gets organism at given coordinates of 1 cell
@@ -77,3 +78,13 @@ addOrganism :: Organism -> World -> World
 addOrganism organism world = world {organisms = organisms'}
   where
     organisms' = undefined
+
+-- | Organism lifecycle
+-- TODO
+lifecycle :: (Organism, World) -> (Maybe Organism, World)
+lifecycle (organism, world)
+  | hasMover organism = moverLifecycle
+  | otherwise = producerLifecycle
+  where
+    moverLifecycle = undefined
+    producerLifecycle = first Just $ makeFood (organism, world)

@@ -4,9 +4,6 @@ import qualified CodeWorld
 import qualified Data.Map as Map
 import Types
 
-updateWorld :: CodeWorld.Event -> World -> World
-updateWorld = undefined
-
 defaultWorld :: World
 defaultWorld = World grid' organisms'
   where
@@ -19,8 +16,25 @@ defaultWorld = World grid' organisms'
             y <- [-5 .. 5]
         ]
 
+-- | Make default engine for given world
 defaultEngineFor :: World -> Engine
 defaultEngineFor w = Engine {world = w, fps = 60}
 
+-- | Update world state
+-- TODO
+tick :: World -> World
+tick = id
+
+-- | Update engine from given event
+updateEngine :: CodeWorld.Event -> Engine -> Engine
+updateEngine (CodeWorld.TimePassing seconds) engine
+  -- I hope this fps lock formula works...
+  | round (seconds * 1000) `rem` fps engine == 0 = updated
+  | otherwise = engine
+  where
+    updated = engine {world = tick (world engine)}
+updateEngine _ engine = engine
+
+-- | Start life engine
 start :: IO ()
 start = CodeWorld.drawingOf (draw defaultWorld)
