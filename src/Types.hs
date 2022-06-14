@@ -83,7 +83,7 @@ instance Drawable Cell where
         Mover -> square
         Killer -> square
         Armor -> square
-        Eye -> square -- TODO: draw eye with direction
+        Eye -> square -- Do not forget about organism direction
         Food -> square
         Empty -> square
         Wall -> square
