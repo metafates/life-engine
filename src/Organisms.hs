@@ -65,7 +65,9 @@ organismAtCoords coords world =
     Just key -> Map.lookup key (organisms world)
 
 -- | Gets coordinates of organism cells
--- TODO
+-- Returned list of coordinates is *always* in the same order
+-- TODO: use pairing function to sort coordinates by
+-- HINT: Use `cantor` from Utils.hs
 organismBodyCoords :: Organism -> [Coords]
 organismBodyCoords = undefined
 
