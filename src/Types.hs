@@ -1,11 +1,11 @@
 module Types where
 
-import qualified CodeWorld
 import Data.Function (on)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import System.Random (StdGen)
 import Utilities (bimap)
+import CodeWorld
 
 -- | (X, Y) coordinates
 type Coords = (Int, Int)
@@ -79,15 +79,15 @@ instance Drawable Cell where
       square = CodeWorld.solidRectangle size' size'
       -- TODO: draw it in different colors
       figure = case state cell of
-        Mouth -> square
-        Producer -> square
-        Mover -> square
-        Killer -> square
-        Armor -> square
-        Eye -> square -- Do not forget about organism direction
-        Food -> square
-        Empty -> square
-        Wall -> square
+        Mouth     -> colored (RGBA 255 108 184 0.8) square -- pink
+        Producer  -> colored (RGBA  45 255 117 0.8) square -- dark green
+        Mover     -> colored (RGBA 142 104  68 0.8) square -- brown
+        Killer    -> colored (RGBA 240  72  72 0.8) square -- red
+        Armor     -> colored (RGBA 150 240 243 0.8) square -- light blue
+        Eye       -> colored white                  square <> dilated 0.5 square
+        Food      -> colored (RGBA 150 243 160 0.8) square -- light green
+        Empty     -> colored black                  square
+        Wall      -> colored (RGBA 112 112 112 0.8) square -- grey
 
 instance Drawable World where
   draw w = ((<>) `on` CodeWorld.pictures) (livingCells w) (nonLivingCells w)
