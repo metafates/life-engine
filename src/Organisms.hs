@@ -18,18 +18,22 @@ hasMover = hasCellOfState Mover
 -- | Checks if organism has eyes
 -- TODO
 hasEyes :: Organism -> Bool
-hasEyes = undefined
+hasEyes = hasCellOfState Eye
 
 -- | Checks if organism has brain
 -- Organism gets brain when it has both eyes and mover cell
 -- TODO
 hasBrain :: Organism -> Bool
-hasBrain = undefined
+hasBrain = hasMover and hasEyes
+
+-- | Count number of Cells
+countCells :: [Cell] -> Int
+countCells [] = 0
+countCells (c:cs) = 1 + countCells cs
 
 -- | Amount of food required before it can reproduce
--- TODO
 foodNeeded :: Organism -> Int
-foodNeeded = undefined
+foodNeeded org = countCells org.anatomy
 
 -- | Try to move at next direction
 -- TODO: move organism to the next direction
@@ -43,9 +47,12 @@ tryRotate = undefined
 
 -- | Get next direction
 -- North -> East -> South -> West -> repeat
--- TODO
 nextDirection :: Direction -> Direction
-nextDirection = undefined
+nextDirection dir
+  | dir == North = East
+  | dir == East = South
+  | dir == South = West
+  | dir == West = North
 
 -- | Kill organism if it has 0 hp
 -- TODO: remove organism from the world
