@@ -36,5 +36,6 @@ updateEngine (CodeWorld.TimePassing seconds) engine
 updateEngine _ engine = engine
 
 -- | Start life engine
+-- TODO: use activityOf (or animationOf) later
 start :: IO ()
 start = CodeWorld.drawingOf (draw defaultWorld)

@@ -1,6 +1,5 @@
 module Organisms where
 
-import Data.Bifunctor (first)
 import Data.List (find)
 import qualified Data.Map as Map
 import Types
@@ -34,13 +33,13 @@ foodNeeded = undefined
 
 -- | Try to move at next direction
 -- TODO: move organism to the next direction
-attemptMove :: (Organism, World) -> (Organism, World)
-attemptMove = undefined
+tryMove :: (Organism, World) -> (Organism, World)
+tryMove = undefined
 
 -- | Try to rotate at next direction
 -- TODO: rotate organism at the direction and update direction
-attemptRotate :: (Organism, World) -> (Organism, World)
-attemptRotate = undefined
+tryRotate :: (Organism, World) -> (Organism, World)
+tryRotate = undefined
 
 -- | Get next direction
 -- North -> East -> South -> West -> repeat
@@ -48,15 +47,20 @@ attemptRotate = undefined
 nextDirection :: Direction -> Direction
 nextDirection = undefined
 
--- | Kill an organism
+-- | Kill organism if it has 0 hp
 -- TODO: remove organism from the world
-die :: (Organism, World) -> World
-die = undefined
+tryDie :: (Organism, World) -> (Maybe Organism, World)
+tryDie = undefined
 
 -- | Activates producer cell
 -- TODO: spawn food cells in adjacent coordinates
-makeFood :: (Organism, World) -> (Organism, World)
-makeFood = undefined
+tryMakeFood :: (Organism, World) -> (Organism, World)
+tryMakeFood = undefined
+
+-- | Eat food if there are any nearby
+-- TODO
+tryEatFood :: (Organism, World) -> (Organism, World)
+tryEatFood = undefined
 
 -- | Gets organism at given coordinates of 1 cell
 organismAtCoords :: Coords -> World -> Maybe Organism
@@ -86,5 +90,14 @@ lifecycle (organism, world)
   | hasMover organism = moverLifecycle
   | otherwise = producerLifecycle
   where
-    moverLifecycle = undefined
-    producerLifecycle = first Just $ makeFood (organism, world)
+    -- Movers do not make food, but they can move
+    moverLifecycle =
+      case tryDie (organism, world) of
+        (Nothing, w) -> (Nothing, w)
+        (Just organism', world') -> undefined
+
+    -- Producers do not move, but they can make food
+    producerLifecycle =
+      case tryDie (organism, world) of
+        (Nothing, w) -> (Nothing, w)
+        (Just organism', world') -> undefined
