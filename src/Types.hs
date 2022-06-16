@@ -76,18 +76,30 @@ instance Drawable Cell where
          in CodeWorld.translated x' y'
 
       size' = size cell
-      square = CodeWorld.solidRectangle size' size'
-      -- TODO: draw it in different colors
-      figure = case state cell of
-        Mouth -> square
-        Producer -> square
-        Mover -> square
-        Killer -> square
-        Armor -> square
-        Eye -> square -- Do not forget about organism direction
-        Food -> square
-        Empty -> square
-        Wall -> square
+      figure =
+        let colored = CodeWorld.colored
+            square = CodeWorld.solidRectangle size' size'
+            rgba = CodeWorld.RGBA
+            white = CodeWorld.white
+            black = CodeWorld.black
+            pink = rgba 255 108 184 0.8
+            darkGreen = rgba 45 255 117 0.8
+            brown = rgba 142 104 68 0.8
+            red = rgba 240 72 72 0.8
+            lightBlue = rgba 150 240 243 0.8
+            lightGreen = rgba 150 243 160 0.8
+            gray = rgba 112 112 112 0.8
+            dilated = CodeWorld.dilated
+         in case state cell of
+              Mouth -> colored pink square
+              Producer -> colored darkGreen square
+              Mover -> colored brown square
+              Killer -> colored red square
+              Armor -> colored lightBlue square
+              Eye -> colored white square <> dilated 0.5 square
+              Food -> colored lightGreen square
+              Empty -> colored black square
+              Wall -> colored gray square
 
 instance Drawable World where
   draw w = ((<>) `on` CodeWorld.pictures) (livingCells w) (nonLivingCells w)
