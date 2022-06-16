@@ -83,6 +83,11 @@ addOrganism organism world = world {organisms = organisms'}
   where
     organisms' = undefined
 
+-- | Try to reproduce
+-- TODO
+tryReproduce :: (Organism, World) -> (Organism, World)
+tryReproduce = undefined
+
 -- | Organism lifecycle
 -- TODO
 lifecycle :: (Organism, World) -> (Maybe Organism, World)
