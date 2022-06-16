@@ -22,18 +22,12 @@ hasEyes = hasCellOfState Eye
 
 -- | Checks if organism has brain
 -- Organism gets brain when it has both eyes and mover cell
--- TODO
 hasBrain :: Organism -> Bool
-hasBrain = hasMover and hasEyes
-
--- | Count number of Cells
-countCells :: [Cell] -> Int
-countCells [] = 0
-countCells (c:cs) = 1 + countCells cs
+hasBrain organism = hasMover organism && hasEyes organism
 
 -- | Amount of food required before it can reproduce
 foodNeeded :: Organism -> Int
-foodNeeded org = countCells org.anatomy
+foodNeeded = length . anatomy
 
 -- | Try to move at next direction
 -- TODO: move organism to the next direction
@@ -48,11 +42,10 @@ tryRotate = undefined
 -- | Get next direction
 -- North -> East -> South -> West -> repeat
 nextDirection :: Direction -> Direction
-nextDirection dir
-  | dir == North = East
-  | dir == East = South
-  | dir == South = West
-  | dir == West = North
+nextDirection North = East
+nextDirection East = South
+nextDirection South = West
+nextDirection West = North
 
 -- | Kill organism if it has 0 hp
 -- TODO: remove organism from the world
@@ -94,6 +87,12 @@ addOrganism organism world = world {organisms = organisms'}
 -- TODO
 tryReproduce :: (Organism, World) -> (Organism, World)
 tryReproduce = undefined
+
+isFreeAt :: Coords -> World -> Bool
+isFreeAt coords world = all not [overlapWithOrganism, overlapWithGridCell]
+  where
+    overlapWithOrganism = elem coords $ concat $ Map.keys (organisms world)
+    overlapWithGridCell = Map.member coords (grid world)
 
 -- | Organism lifecycle
 -- TODO
