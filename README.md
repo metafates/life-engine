@@ -35,8 +35,6 @@ Organisms are structures of different anatomy cells.
 -   **Armor** — this cell defends against the killer cell simply by ignoring its damage.
 -   **Eye** — the eye allows an organism to see and alter its movement based on its perceptions
 
-
-
 ## Lifecycle
 The length of an organism's life is equal to number of its cells multiplied by lifespan multiplier (100 by default). For example, an organism made of 3 cells will die in 300 frames.
 
@@ -50,7 +48,7 @@ Once an organism eats more food than amount of its body cells it will reproduce.
 
 An organism' offsprings are clones of an organism itself (they can born in any direction near the parent and can be rotated in any way). Reproduction can **fail** if an offspring tries to born in occupied space (food required to born an offspring vanishes as well). 
 
-However, there is mutation possibility (watch **Mutation** section)
+However, there is mutation possibility (see [Mutation](#mutation))
 
 ## Behavior
 An organism requires one mover cell to move. Once, an organism has it, it starts to move in random direction, moving one cell per frame. After ***certain number of frames***, it will change its directon and rotation. (this number is called **move range** and can mutate over time).
