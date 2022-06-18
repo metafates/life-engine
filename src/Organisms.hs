@@ -84,9 +84,15 @@ addOrganism organism world = world {organisms = organisms'}
     organisms' = undefined
 
 -- | Try to reproduce
+-- This also returns a created organism
 -- TODO
-tryReproduce :: (Organism, World) -> (Organism, World)
-tryReproduce = undefined
+tryReproduce :: (Organism, World) -> ((Organism, World), Maybe Organism)
+tryReproduce (organism, world)
+  | canReproduce = reproduce (organism, world)
+  | otherwise = ((organism, world), Nothing)
+  where
+    canReproduce = undefined
+    reproduce = undefined
 
 isFreeAt :: Coords -> World -> Bool
 isFreeAt coords world = all not [overlapWithOrganism, overlapWithGridCell]

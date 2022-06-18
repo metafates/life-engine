@@ -8,3 +8,12 @@ bimap f (a, b) = (f a, f b)
 -- Order matters, e.g. cantor (a, b) != cantor (b, a)
 cantor :: (Fractional a) => (a, a) -> a
 cantor (a, b) = 1 / 2 * (a + b) * (a + b + 1) + b
+
+corners :: [(Int, Int)]
+corners = [(1, 1), (-1, -1), (1, -1), (-1, 1)]
+
+adjacent :: [(Int, Int)]
+adjacent = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+around :: [(Int, Int)]
+around = adjacent ++ corners
