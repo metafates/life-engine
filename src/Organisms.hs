@@ -2,7 +2,7 @@ module Organisms where
 
 import Data.List (find)
 import qualified Data.Map as Map
-import Types
+import Types hiding (world)
 
 -- | Checks if organism has a specific cell state in its anatomy
 hasCellOfState :: CellState -> Organism -> Bool
@@ -84,20 +84,28 @@ addOrganism organism world = world {organisms = organisms'}
     organisms' = undefined
 
 -- | Organism lifecycle
--- TODO
 lifecycle :: (Organism, World) -> (Maybe Organism, World)
 lifecycle (organism, world)
   | hasMover organism = moverLifecycle
   | otherwise = producerLifecycle
   where
+
     -- Movers do not make food, but they can move
     moverLifecycle =
       case tryDie (organism, world) of
         (Nothing, w) -> (Nothing, w)
-        (Just organism', world') -> undefined
+        (Just _, _) -> (Just mover, worldWithMover)
+    
+    -- Life cycle chain for movers
+    (mover, worldWithMover) =
+      (tryMove . tryRotate . tryEatFood) (organism, world)
 
     -- Producers do not move, but they can make food
     producerLifecycle =
       case tryDie (organism, world) of
         (Nothing, w) -> (Nothing, w)
-        (Just organism', world') -> undefined
+        (Just _, _) -> (Just producer, worldWithProducer)
+    
+    -- Life cycle chain for producers
+    (producer, worldWithProducer) =
+      (tryEatFood . tryMakeFood) (organism, world)
