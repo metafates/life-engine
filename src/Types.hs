@@ -1,6 +1,7 @@
 module Types where
 
 import qualified CodeWorld
+import Common (cellSize)
 import Data.Function (on)
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -33,7 +34,6 @@ data CellState
 -- | Cell
 data Cell = Cell
   { state :: CellState,
-    size :: Double,
     coords :: Coords
   }
 
@@ -72,11 +72,10 @@ instance Drawable Cell where
   draw cell = positioned figure
     where
       positioned =
-        let (x', y') = bimap ((*) (size cell) . fromIntegral) (coords cell)
+        let (x', y') = bimap ((*) cellSize . fromIntegral) (coords cell)
          in CodeWorld.translated x' y'
 
-      size' = size cell
-      square = CodeWorld.solidRectangle size' size'
+      square = CodeWorld.solidRectangle cellSize cellSize
       -- TODO: draw it in different colors
       figure = case state cell of
         Mouth -> square

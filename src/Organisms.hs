@@ -1,6 +1,7 @@
 module Organisms where
 
-import Data.List (find)
+import Data.Function (on)
+import Data.List (find, sortBy)
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
 import Types
@@ -16,6 +17,9 @@ hasCellOfState cell = asBool . find ((==) cell . state) . anatomy
 -- | Checks if organism has mover cell
 hasMover :: Organism -> Bool
 hasMover = hasCellOfState Mover
+
+hasProducer :: Organism -> Bool
+hasProducer = hasCellOfState Producer
 
 -- | Checks if organism has eyes
 hasEye :: Organism -> Bool
@@ -49,14 +53,36 @@ nextDirection South = West
 nextDirection West = North
 
 -- | Kill organism if it has 0 hp
--- TODO
 tryDie :: (Organism, World) -> (Maybe Organism, World)
-tryDie = undefined
+tryDie (organism, world)
+  | health organism == 0 = (Nothing, worldWithoutOrganism)
+  | otherwise = (Just organism, world)
+  where
+    worldWithoutOrganism =
+      world
+        { organisms = Map.delete (organismBodyCoords organism) (organisms world)
+        }
 
 -- | Activates producer cell
--- TODO: spawn food cells in adjacent coordinates
 tryMakeFood :: (Organism, World) -> (Organism, World)
-tryMakeFood = undefined
+tryMakeFood (organism, world)
+  | hasMover organism || not (hasProducer organism) = (organism, world)
+  | otherwise =
+    let producers = filter ((==) Producer . state) (anatomy organism)
+     in (organism, addToGrid $ concatMap makeAdjacentFood producers)
+  where
+    makeAdjacentFood = map (Cell Food) . relativeTo adjacent . coords
+    addToGrid =
+      let foodGrid =
+            foldl
+              ( \m f ->
+                  let c = coords f
+                   in if isFreeAt c world then Map.insert c f m else m
+              )
+              Map.empty
+          with = Map.union (grid world)
+          updateGrid g = world {grid = g}
+       in updateGrid . with . foodGrid
 
 -- | Eat food if there are any nearby
 tryEatFood :: (Organism, World) -> (Organism, World)
@@ -89,17 +115,16 @@ organismAtCoords coords world =
 
 -- | Gets coordinates of organism cells
 -- Returned list of coordinates is *always* in the same order
--- TODO: use pairing function to sort coordinates by
--- HINT: Use `cantor` from Utils.hs
 organismBodyCoords :: Organism -> [Coords]
-organismBodyCoords = undefined
+organismBodyCoords = sortBy (compare `on` integralCantor) . map coords . anatomy
 
 -- | Adds organism to the world
--- TODO: use organism body size as key and organism as value
 addOrganism :: Organism -> World -> World
 addOrganism organism world = world {organisms = organisms'}
   where
-    organisms' = undefined
+    organisms' =
+      let key = organismBodyCoords organism
+       in Map.insert key organism (organisms world)
 
 -- | Try to reproduce
 -- This also returns a created organism

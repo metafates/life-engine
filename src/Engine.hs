@@ -11,7 +11,7 @@ defaultWorld = World grid' organisms'
     grid' =
       Map.fromList $
         [ let xy = (x, y)
-           in (xy, Cell {state = Empty, size = 1, coords = xy})
+           in (xy, Cell {state = Empty, coords = xy})
           | x <- [-5 .. 5],
             y <- [-5 .. 5]
         ]

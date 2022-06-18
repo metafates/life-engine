@@ -9,6 +9,13 @@ bimap f (a, b) = (f a, f b)
 cantor :: (Fractional a) => (a, a) -> a
 cantor (a, b) = 1 / 2 * (a + b) * (a + b + 1) + b
 
+-- | Same as cantor but for integral types
+integralCantor :: (Integral a, Fractional b) => (a, a) -> b
+integralCantor = cantor . bimap fromIntegral
+
+relativeTo :: [(Int, Int)] -> (Int, Int) -> [(Int, Int)]
+relativeTo xs = zipWith vectorSum xs . repeat
+
 corners :: [(Int, Int)]
 corners = [(1, 1), (-1, -1), (1, -1), (-1, 1)]
 
