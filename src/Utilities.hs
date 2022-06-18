@@ -17,3 +17,6 @@ adjacent = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
 around :: [(Int, Int)]
 around = adjacent ++ corners
+
+vectorSum :: (Num a) => (a, a) -> (a, a) -> (a, a)
+vectorSum (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)

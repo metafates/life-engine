@@ -24,8 +24,6 @@ defaultEngineFor w = Engine {world = w, fps = 60}
 -- TODO
 tick :: World -> World
 tick = undefined
-  where
-    go world = lifecycle (or)
 
 -- | Update engine from given event
 updateEngine :: CodeWorld.Event -> Engine -> Engine

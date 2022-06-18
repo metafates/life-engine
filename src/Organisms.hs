@@ -2,8 +2,8 @@ module Organisms where
 
 import Data.List (find)
 import qualified Data.Map as Map
+import Data.Maybe (mapMaybe)
 import Types
-
 import Utilities
 
 -- | Checks if organism has a specific cell state in its anatomy
@@ -24,7 +24,7 @@ hasEye = hasCellOfState Eye
 -- | Checks if organism has brain
 -- Organism gets brain when it has both eyes and mover cell
 hasBrain :: Organism -> Bool
-hasBrain organism = hasMover organism && hasEyes organism
+hasBrain organism = hasMover organism && hasEye organism
 
 -- | Amount of food required before it can reproduce
 foodNeeded :: Organism -> Int
@@ -51,36 +51,34 @@ nextDirection West = North
 -- | Kill organism if it has 0 hp
 -- TODO
 tryDie :: (Organism, World) -> (Maybe Organism, World)
-tryDie (org, world) = 
-  | health org == 0 = (updWorld)
-  | otherwise = (org, world)
-  where
-    updWorld = map Map.delete (coords cell) (grid world)
+tryDie = undefined
 
 -- | Activates producer cell
 -- TODO: spawn food cells in adjacent coordinates
 tryMakeFood :: (Organism, World) -> (Organism, World)
-tryMakeFood (org, world) = 
-  case find ((==) Mouth) (anatomy org) of
-      Nothing -> (org, world)
-      Just month ->
+tryMakeFood = undefined
 
 -- | Eat food if there are any nearby
--- TODO
 tryEatFood :: (Organism, World) -> (Organism, World)
-tryEatFood (org, world) = 
-  case find ((==) Mouth) (anatomy org) of
-      Nothing -> (org, world)
-      Just month ->
-        case find ((==) Food) possibleCells of
-          Nothing -> (org, world)
-          Just food -> (updOrg, updWorld)
-        where
-          possibleCells = zipWith vectorSum coords month adjacent
+tryEatFood (organism, world) =
+  case find ((==) Mouth . state) (anatomy organism) of
+    Nothing -> error "Organism must have a mouth"
+    Just mouth -> handleFood $ filter ((==) Food . state) (cellsAround mouth)
+  where
+    cellsAround =
+      let neighbors = zipWith vectorSum around . repeat
+       in mapMaybe (`cellAt` world) . neighbors . coords
 
-          updWorld = Map.delete (coords food) (grid world)
-          updOrg = org{foodCollected}
-
+    handleFood food =
+      let foodCollected' = foodCollected organism
+          foodCoords = map coords food
+          updatedGrid =
+            Map.fromList $
+              filter ((`notElem` foodCoords) . fst) $
+                Map.toList (grid world)
+       in ( organism {foodCollected = foodCollected' + length food},
+            world {grid = updatedGrid}
+          )
 
 -- | Gets organism at given coordinates of 1 cell
 organismAtCoords :: Coords -> World -> Maybe Organism
@@ -114,11 +112,22 @@ tryReproduce (organism, world)
     canReproduce = undefined
     reproduce = undefined
 
+-- | Returns cell at coordinates.
+-- if coordinates are out of bounds nothing is returned
+cellAt :: Coords -> World -> Maybe Cell
+cellAt xy world =
+  case Map.lookup xy (grid world) of
+    Just cell -> Just cell
+    Nothing -> case find (elem xy . fst) (Map.toList (organisms world)) of
+      Nothing -> Nothing
+      Just (_, organism) -> find ((==) xy . coords) (anatomy organism)
+
+-- | Checks if cell is free (empty) at coordinates
 isFreeAt :: Coords -> World -> Bool
-isFreeAt coords world = all not [overlapWithOrganism, overlapWithGridCell]
+isFreeAt coords world = toBool $ cellAt coords world
   where
-    overlapWithOrganism = elem coords $ concat $ Map.keys (organisms world)
-    overlapWithGridCell = Map.member coords (grid world)
+    toBool Nothing = False
+    toBool (Just cell) = state cell == Empty
 
 -- | Organism lifecycle
 -- TODO
