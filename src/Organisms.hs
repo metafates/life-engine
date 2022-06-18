@@ -4,6 +4,8 @@ import Data.List (find)
 import qualified Data.Map as Map
 import Types
 
+import Utilities
+
 -- | Checks if organism has a specific cell state in its anatomy
 hasCellOfState :: CellState -> Organism -> Bool
 hasCellOfState cell = asBool . find ((==) cell . state) . anatomy
@@ -16,9 +18,8 @@ hasMover :: Organism -> Bool
 hasMover = hasCellOfState Mover
 
 -- | Checks if organism has eyes
--- TODO
-hasEyes :: Organism -> Bool
-hasEyes = hasCellOfState Eye
+hasEye :: Organism -> Bool
+hasEye = hasCellOfState Eye
 
 -- | Checks if organism has brain
 -- Organism gets brain when it has both eyes and mover cell
@@ -48,19 +49,38 @@ nextDirection South = West
 nextDirection West = North
 
 -- | Kill organism if it has 0 hp
--- TODO: remove organism from the world
+-- TODO
 tryDie :: (Organism, World) -> (Maybe Organism, World)
-tryDie = undefined
+tryDie (org, world) = 
+  | health org == 0 = (updWorld)
+  | otherwise = (org, world)
+  where
+    updWorld = map Map.delete (coords cell) (grid world)
 
 -- | Activates producer cell
 -- TODO: spawn food cells in adjacent coordinates
 tryMakeFood :: (Organism, World) -> (Organism, World)
-tryMakeFood = undefined
+tryMakeFood (org, world) = 
+  case find ((==) Mouth) (anatomy org) of
+      Nothing -> (org, world)
+      Just month ->
 
 -- | Eat food if there are any nearby
 -- TODO
 tryEatFood :: (Organism, World) -> (Organism, World)
-tryEatFood = undefined
+tryEatFood (org, world) = 
+  case find ((==) Mouth) (anatomy org) of
+      Nothing -> (org, world)
+      Just month ->
+        case find ((==) Food) possibleCells of
+          Nothing -> (org, world)
+          Just food -> (updOrg, updWorld)
+        where
+          possibleCells = zipWith vectorSum coords month adjacent
+
+          updWorld = Map.delete (coords food) (grid world)
+          updOrg = org{foodCollected}
+
 
 -- | Gets organism at given coordinates of 1 cell
 organismAtCoords :: Coords -> World -> Maybe Organism
