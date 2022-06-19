@@ -1,6 +1,7 @@
 module Types where
 
 import qualified CodeWorld
+import Common (cellSize)
 import Data.Function (on)
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -33,7 +34,6 @@ data CellState
 -- | Cell
 data Cell = Cell
   { state :: CellState,
-    size :: Double,
     coords :: Coords
   }
 
@@ -42,12 +42,11 @@ data Cell = Cell
 data Organism = Organism
   { anatomy :: [Cell],
     health :: Int,
-    moveDirection :: Maybe Direction,
-    rotateDirection :: Maybe Direction,
+    direction :: Direction,
     foodCollected :: Int,
-    lifetime :: Double,
+    lifetime :: Int,
     mutationFactor :: Double,
-    lifespanFactor :: Double,
+    lifespanFactor :: Int,
     lookRange :: Int,
     randomGen :: StdGen
   }
@@ -72,9 +71,8 @@ instance Drawable Cell where
   draw cell = positioned figure
     where
       positioned =
-        let (x', y') = bimap ((*) (size cell) . fromIntegral) (coords cell)
+        let (x', y') = bimap ((*) cellSize . fromIntegral) (coords cell)
          in CodeWorld.translated x' y'
-
       size' = size cell
       figure =
         let colored = CodeWorld.colored
