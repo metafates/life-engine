@@ -29,7 +29,9 @@ library
     other-modules:
         Paths_life_engine,
         Types,
-        Utilities
+        Utilities,
+        Common,
+        Organisms
     exposed-modules:
         Engine
     build-depends:   

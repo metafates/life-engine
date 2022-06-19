@@ -73,10 +73,9 @@ instance Drawable Cell where
       positioned =
         let (x', y') = bimap ((*) cellSize . fromIntegral) (coords cell)
          in CodeWorld.translated x' y'
-      size' = size cell
       figure =
         let colored = CodeWorld.colored
-            square = CodeWorld.solidRectangle size' size'
+            square = CodeWorld.solidRectangle cellSize cellSize
             rgba = CodeWorld.RGBA
             white = CodeWorld.white
             black = CodeWorld.black
