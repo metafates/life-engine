@@ -66,7 +66,7 @@ tryDie (organism, world)
 -- | Activates producer cell
 tryMakeFood :: (Organism, World) -> (Organism, World)
 tryMakeFood (organism, world)
-  | hasMover organism || not (hasProducer organism) = (organism, world)
+  | hasMover organism || (not . hasProducer) organism = (organism, world)
   | otherwise =
     let producers = filter ((==) Producer . state) (anatomy organism)
      in (organism, addToGrid $ concatMap makeAdjacentFood producers)
