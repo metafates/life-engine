@@ -205,20 +205,28 @@ isFreeAt coords world = toBool $ cellAt coords world
     toBool (Just cell) = state cell == Empty
 
 -- | Organism lifecycle
--- TODO
 lifecycle :: (Organism, World) -> (Maybe Organism, World)
 lifecycle (organism, world)
   | hasMover organism = moverLifecycle
   | otherwise = producerLifecycle
   where
+
     -- Movers do not make food, but they can move
     moverLifecycle =
       case tryDie (organism, world) of
         (Nothing, w) -> (Nothing, w)
-        (Just organism', world') -> undefined
+        (Just _, _) -> (Just mover, worldWithMover)
+    
+    -- Life cycle chain for movers
+    (mover, worldWithMover) =
+      (tryMove . tryRotate . tryEatFood) (organism, world)
 
     -- Producers do not move, but they can make food
     producerLifecycle =
       case tryDie (organism, world) of
         (Nothing, w) -> (Nothing, w)
-        (Just organism', world') -> undefined
+        (Just _, _) -> (Just producer, worldWithProducer)
+    
+    -- Life cycle chain for producers
+    (producer, worldWithProducer) =
+      (tryEatFood . tryMakeFood) (organism, world)
