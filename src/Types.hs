@@ -45,9 +45,9 @@ data Organism = Organism
     moveDirection :: Maybe Direction,
     rotateDirection :: Maybe Direction,
     foodCollected :: Int,
-    lifetime :: Double,
+    lifetime :: Int,
     mutationFactor :: Double,
-    lifespanFactor :: Double,
+    lifespanFactor :: Int,
     lookRange :: Int,
     randomGen :: StdGen
   }

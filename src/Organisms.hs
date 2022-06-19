@@ -55,9 +55,14 @@ nextDirection West = North
 -- | Kill organism if it has 0 hp
 tryDie :: (Organism, World) -> (Maybe Organism, World)
 tryDie (organism, world)
-  | health organism == 0 = (Nothing, worldWithoutOrganism)
-  | otherwise = (Just organism, world)
+  | shouldDie = (Nothing, worldWithoutOrganism)
+  | otherwise = (Just (organism {lifetime = lifetime' + 1}), world)
   where
+    lifetime' = lifetime organism
+    -- Organism can either die from having 0 hp or from getting too old
+    shouldDie =
+      health organism == 0
+        || lifetime' >= length (anatomy organism) * lifespanFactor organism
     worldWithoutOrganism =
       world
         { organisms = Map.delete (organismBodyCoords organism) (organisms world)
