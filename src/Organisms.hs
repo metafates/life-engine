@@ -1,9 +1,10 @@
 module Organisms where
 
+import Data.Bifunctor (Bifunctor (first, second))
 import Data.Function (on)
 import Data.List (find, sortBy)
 import qualified Data.Map as Map
-import Data.Maybe (mapMaybe)
+import Data.Maybe (fromJust, isJust, mapMaybe)
 import Types
 import Utilities
 
@@ -34,10 +35,41 @@ hasBrain organism = hasMover organism && hasEye organism
 foodNeeded :: Organism -> Int
 foodNeeded = length . anatomy
 
+-- | Shifts coordinates to the direction by 1
+shiftTo :: Direction -> Coords -> Coords
+shiftTo North = second (+ 1)
+shiftTo East = first (+ 1)
+shiftTo South = second (subtract 1)
+shiftTo West = first (subtract 1)
+
 -- | Try to move at next direction
--- TODO: move organism to the next direction
 tryMove :: (Organism, World) -> (Organism, World)
-tryMove = undefined
+tryMove (organism, world) =
+  if isValidPosition movedOrganismCoords
+    then (movedOrganism, worldWithMoved)
+    else (organism, world)
+  where
+    worldWithMoved =
+      let organisms' =
+            Map.insert movedOrganismCoords movedOrganism $
+              Map.delete (organismBodyCoords organism) (organisms world)
+          grid' =
+            foldl (flip (Map.adjust toEmpty)) (grid world) movedOrganismCoords
+          toEmpty c = c {state = Empty}
+       in world {organisms = organisms', grid = grid'}
+    -- organism moved to next direction
+    movedOrganism =
+      let anatomy' = anatomy organism
+          dir = direction organism
+          shifted c = c {coords = shiftTo dir (coords c)}
+       in organism
+            { anatomy = map shifted anatomy',
+              direction = nextDirection dir
+            }
+    movedOrganismCoords = organismBodyCoords movedOrganism
+    -- checks if cells at given coordinates are empty and are in bounds of grid
+    isValidPosition =
+      all ((\c -> isJust c && (state (fromJust c) == Empty)) . (`cellAt` world))
 
 -- | Try to rotate at next direction
 -- TODO: rotate organism at the direction and update direction

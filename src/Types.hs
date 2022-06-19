@@ -42,8 +42,7 @@ data Cell = Cell
 data Organism = Organism
   { anatomy :: [Cell],
     health :: Int,
-    moveDirection :: Maybe Direction,
-    rotateDirection :: Maybe Direction,
+    direction :: Direction,
     foodCollected :: Int,
     lifetime :: Int,
     mutationFactor :: Double,
