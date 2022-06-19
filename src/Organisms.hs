@@ -42,23 +42,32 @@ shiftTo East = first (+ 1)
 shiftTo South = second (subtract 1)
 shiftTo West = first (subtract 1)
 
--- | Try to move at next direction
-tryMove :: (Organism, World) -> (Organism, World)
-tryMove (organism, world) =
-  if isValidPosition movedOrganismCoords
-    then (movedOrganism, worldWithMoved)
+tryUpdateOrganismWith ::
+  (Organism -> Organism) -> (Organism, World) -> (Organism, World)
+tryUpdateOrganismWith update (organism, world) =
+  if isValidPosition updatedCoords
+    then (updatedOrganism, updatedWorld)
     else (organism, world)
   where
-    worldWithMoved =
+    updatedWorld =
       let organisms' =
-            Map.insert movedOrganismCoords movedOrganism $
+            Map.insert updatedCoords updatedOrganism $
               Map.delete (organismBodyCoords organism) (organisms world)
           grid' =
-            foldl (flip (Map.adjust toEmpty)) (grid world) movedOrganismCoords
+            foldl (flip (Map.adjust toEmpty)) (grid world) updatedCoords
           toEmpty c = c {state = Empty}
        in world {organisms = organisms', grid = grid'}
-    -- organism moved to next direction
-    movedOrganism =
+    updatedOrganism = update organism
+    updatedCoords = organismBodyCoords updatedOrganism
+    -- checks if cells at given coordinates are empty and are in bounds of grid
+    isValidPosition =
+      all ((\c -> isJust c && (state (fromJust c) == Empty)) . (`cellAt` world))
+
+-- | Try to move at next direction
+tryMove :: (Organism, World) -> (Organism, World)
+tryMove = tryUpdateOrganismWith move
+  where
+    move organism =
       let anatomy' = anatomy organism
           dir = direction organism
           shifted c = c {coords = shiftTo dir (coords c)}
@@ -66,15 +75,19 @@ tryMove (organism, world) =
             { anatomy = map shifted anatomy',
               direction = nextDirection dir
             }
-    movedOrganismCoords = organismBodyCoords movedOrganism
-    -- checks if cells at given coordinates are empty and are in bounds of grid
-    isValidPosition =
-      all ((\c -> isJust c && (state (fromJust c) == Empty)) . (`cellAt` world))
 
 -- | Try to rotate at next direction
--- TODO: rotate organism at the direction and update direction
 tryRotate :: (Organism, World) -> (Organism, World)
-tryRotate = undefined
+tryRotate = tryUpdateOrganismWith rotate
+  where
+    rotate organism =
+      let anatomy' = anatomy organism
+          rotationRule (x, y) = (- y, x)
+          rotated c = c {coords = rotationRule (coords c)}
+       in organism
+            { anatomy = map rotated anatomy',
+              direction = nextDirection (direction organism)
+            }
 
 -- | Get next direction
 -- North -> East -> South -> West -> repeat
