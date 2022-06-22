@@ -2,7 +2,6 @@ module Engine where
 
 import qualified CodeWorld
 import qualified Data.Map as Map
-import Data.Maybe (catMaybes)
 import Organisms (addOrganism, lifecycle)
 import Types
 
@@ -22,6 +21,7 @@ defaultWorld = World grid' organisms'
 defaultEngineFor :: World -> Engine
 defaultEngineFor w = Engine {world = w, fps = 60}
 
+-- | Applies lifecycle for each organism
 applyLifecycle :: Map.Map [Coords] Organism -> World -> World
 applyLifecycle toVisit world
   | Map.null toVisit = world
@@ -34,22 +34,17 @@ applyLifecycle toVisit world
     (organism', world') = lifecycle (organism, world)
 
 -- | Update world state
--- TODO: use applyLifecycle to update world
 tick :: World -> World
-tick world = generateNewWorld aliveOrganisms world
+tick world = applyLifecycle updatedMap updatedWorld
   where
-    orgs = organisms world
+    worldOrgs = Map.elems $ organisms world
 
-    -- Organisms updated by lifecycle
-    updatedOrganisms :: [Maybe Organism]
-    updatedOrganisms = map (\org -> fst (lifecycle (org, world))) (Map.elems orgs)
+    getNewWorld [] w = w
+    getNewWorld (o : os) w = getNewWorld os (addOrganism o w)
 
-    -- Organisms that are not dead
-    aliveOrganisms = Data.Maybe.catMaybes updatedOrganisms
+    updatedWorld = getNewWorld worldOrgs world
 
-    -- Update world with new organisms
-    generateNewWorld [] w = w
-    generateNewWorld (o : os) w = generateNewWorld os (addOrganism o w)
+    updatedMap = organisms updatedWorld
 
 -- | Update engine from given event
 updateEngine :: CodeWorld.Event -> Engine -> Engine
