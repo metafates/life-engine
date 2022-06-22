@@ -3,6 +3,9 @@ module Engine where
 import qualified CodeWorld
 import qualified Data.Map as Map
 import Types
+import Organisms (lifecycle, addOrganism)
+import Data.Maybe (catMaybes)
+import Data.Map (elems)
 
 defaultWorld :: World
 defaultWorld = World grid' organisms'
@@ -21,9 +24,24 @@ defaultEngineFor :: World -> Engine
 defaultEngineFor w = Engine {world = w, fps = 60}
 
 -- | Update world state
--- TODO
 tick :: World -> World
-tick = undefined
+tick oldWorld = generateNewWorld filteredOrganisms oldWorld
+  where
+    (World _ orgs) = oldWorld
+
+    -- Organisms updated by lifecycle
+    updatedOrganisms :: [Maybe Organism]
+    updatedOrganisms = map (\org -> fst (lifecycle (org, oldWorld))) (elems orgs)
+
+    -- List of unpacked updated organisms (removed died organisms) 
+    filteredOrganisms :: [Organism]
+    filteredOrganisms = Data.Maybe.catMaybes updatedOrganisms
+
+    generateNewWorld :: [Organism] -> World -> World
+    generateNewWorld [] w = w
+    generateNewWorld (o : os) w = generateNewWorld os (addOrganism o w)
+
+
 
 -- | Update engine from given event
 updateEngine :: CodeWorld.Event -> Engine -> Engine
