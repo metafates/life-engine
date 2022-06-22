@@ -2,10 +2,9 @@ module Engine where
 
 import qualified CodeWorld
 import qualified Data.Map as Map
-import Types
-import Organisms (lifecycle, addOrganism)
 import Data.Maybe (catMaybes)
-import Data.Map (elems)
+import Organisms (addOrganism, lifecycle)
+import Types
 
 defaultWorld :: World
 defaultWorld = World grid' organisms'
@@ -23,25 +22,34 @@ defaultWorld = World grid' organisms'
 defaultEngineFor :: World -> Engine
 defaultEngineFor w = Engine {world = w, fps = 60}
 
--- | Update world state
-tick :: World -> World
-tick oldWorld = generateNewWorld filteredOrganisms oldWorld
+applyLifecycle :: Map.Map [Coords] Organism -> World -> World
+applyLifecycle toVisit world
+  | Map.null toVisit = world
+  | otherwise = case organism' of
+    Nothing -> applyLifecycle toVisit' world'
+    Just o -> applyLifecycle toVisit' $ addOrganism o world'
   where
-    (World _ orgs) = oldWorld
+    (coords, organism) = head $ Map.toList toVisit
+    toVisit' = Map.filterWithKey (\k _ -> k /= coords) toVisit
+    (organism', world') = lifecycle (organism, world)
+
+-- | Update world state
+-- TODO: use applyLifecycle to update world
+tick :: World -> World
+tick world = generateNewWorld aliveOrganisms world
+  where
+    orgs = organisms world
 
     -- Organisms updated by lifecycle
     updatedOrganisms :: [Maybe Organism]
-    updatedOrganisms = map (\org -> fst (lifecycle (org, oldWorld))) (elems orgs)
+    updatedOrganisms = map (\org -> fst (lifecycle (org, world))) (Map.elems orgs)
 
-    -- List of unpacked updated organisms (removed died organisms) 
-    filteredOrganisms :: [Organism]
-    filteredOrganisms = Data.Maybe.catMaybes updatedOrganisms
+    -- Organisms that are not dead
+    aliveOrganisms = Data.Maybe.catMaybes updatedOrganisms
 
-    generateNewWorld :: [Organism] -> World -> World
+    -- Update world with new organisms
     generateNewWorld [] w = w
     generateNewWorld (o : os) w = generateNewWorld os (addOrganism o w)
-
-
 
 -- | Update engine from given event
 updateEngine :: CodeWorld.Event -> Engine -> Engine
