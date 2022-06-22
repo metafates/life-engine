@@ -35,16 +35,7 @@ applyLifecycle toVisit world
 
 -- | Update world state
 tick :: World -> World
-tick world = applyLifecycle updatedMap updatedWorld
-  where
-    worldOrgs = Map.elems $ organisms world
-
-    getNewWorld [] w = w
-    getNewWorld (o : os) w = getNewWorld os (addOrganism o w)
-
-    updatedWorld = getNewWorld worldOrgs world
-
-    updatedMap = organisms updatedWorld
+tick world = applyLifecycle (organisms world) world
 
 -- | Update engine from given event
 updateEngine :: CodeWorld.Event -> Engine -> Engine
