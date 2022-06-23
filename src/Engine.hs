@@ -3,12 +3,31 @@ module Engine where
 import qualified CodeWorld
 import qualified Data.Map as Map
 import Organisms (addOrganism, lifecycle)
+import System.Random (mkStdGen)
 import Types
 
 defaultWorld :: World
 defaultWorld = World grid' organisms'
   where
-    organisms' = Map.empty -- TODO: add 1 sample organism to test
+    organisms' =
+      Map.fromList
+        [ ( [(0, 0), (0, 1)],
+            Organism
+              { anatomy =
+                  [ Cell {state = Mouth, coords = (0, 0)},
+                    Cell {state = Producer, coords = (0, 1)}
+                  ],
+                health = 100,
+                direction = North,
+                foodCollected = 0,
+                lifetime = 100,
+                mutationFactor = 1,
+                lifespanFactor = 1,
+                lookRange = 20,
+                randomGen = mkStdGen 2
+              }
+          )
+        ]
     grid' =
       Map.fromList $
         [ let xy = (x, y)
@@ -50,4 +69,4 @@ updateEngine _ engine = engine
 -- | Start life engine
 -- TODO: use activityOf (or animationOf) later
 start :: IO ()
-start = CodeWorld.drawingOf (draw defaultWorld)
+start = CodeWorld.activityOf (defaultEngineFor defaultWorld) updateEngine draw

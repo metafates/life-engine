@@ -74,29 +74,28 @@ instance Drawable Cell where
         let (x', y') = bimap ((*) cellSize . fromIntegral) (coords cell)
          in CodeWorld.translated x' y'
       figure =
-        let colored = CodeWorld.colored
-            square = CodeWorld.solidRectangle cellSize cellSize
-            rgba = CodeWorld.RGBA
-            white = CodeWorld.white
-            black = CodeWorld.black
-            pink = rgba 255 108 184 0.8
-            darkGreen = rgba 45 255 117 0.8
-            brown = rgba 142 104 68 0.8
-            red = rgba 240 72 72 0.8
-            lightBlue = rgba 150 240 243 0.8
-            lightGreen = rgba 150 243 160 0.8
-            gray = rgba 112 112 112 0.8
-            dilated = CodeWorld.dilated
+        let square = CodeWorld.solidRectangle cellSize cellSize
+            colored = CodeWorld.colored
+            rgb = CodeWorld.RGB
          in case state cell of
-              Mouth -> colored pink square
-              Producer -> colored darkGreen square
-              Mover -> colored brown square
-              Killer -> colored red square
-              Armor -> colored lightBlue square
-              Eye -> colored white square <> dilated 0.5 square
-              Food -> colored lightGreen square
-              Empty -> colored black square
-              Wall -> colored gray square
+              -- pink mouth
+              Mouth -> colored CodeWorld.pink square
+              -- green producer
+              Producer -> colored (rgb 0.2 0.8 0.2) square
+              -- blue mover
+              Mover -> colored (rgb 0.2 0.2 0.8) square
+              -- red killer
+              Killer -> colored (rgb 0.8 0.2 0.2) square
+              -- yellow armor
+              Armor -> colored (rgb 0.8 0.8 0.2) square
+              -- blue eye
+              Eye -> colored (rgb 0.2 0.2 0.8) square
+              -- light green food
+              Food -> colored (rgb 0.2 0.8 0.2) square
+              -- white empty
+              Empty -> colored (rgb 1 1 1) square
+              -- black wall
+              Wall -> colored (rgb 0 0 0) square
 
 instance Drawable World where
   draw w = ((<>) `on` CodeWorld.pictures) (livingCells w) (nonLivingCells w)
