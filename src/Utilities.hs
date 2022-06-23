@@ -1,5 +1,7 @@
 module Utilities where
 
+import System.Random (StdGen, randomR)
+
 -- | Apply function to the tuple of 2 values of the same type
 bimap :: (a -> b) -> (a, a) -> (b, b)
 bimap f (a, b) = (f a, f b)
@@ -27,3 +29,8 @@ around = adjacent ++ corners
 
 vectorSum :: (Num a) => (a, a) -> (a, a) -> (a, a)
 vectorSum (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+
+randomChoice :: StdGen -> [a] -> (a, StdGen)
+randomChoice g xs = (xs !! i, g')
+  where
+    (i, g') = randomR (0, length xs - 1) g

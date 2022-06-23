@@ -81,19 +81,19 @@ instance Drawable Cell where
               -- pink mouth
               Mouth -> colored CodeWorld.pink square
               -- green producer
-              Producer -> colored (rgb 0.2 0.8 0.2) square
+              Producer -> colored CodeWorld.green square
               -- blue mover
               Mover -> colored (rgb 0.2 0.2 0.8) square
               -- red killer
               Killer -> colored (rgb 0.8 0.2 0.2) square
               -- yellow armor
               Armor -> colored (rgb 0.8 0.8 0.2) square
-              -- blue eye
-              Eye -> colored (rgb 0.2 0.2 0.8) square
-              -- light green food
-              Food -> colored CodeWorld.green square
-              -- gray empty
-              Empty -> colored CodeWorld.gray square
+              -- gray eye
+              Eye -> colored (rgb 0.5 0.5 0.5) square
+              -- dark blue food
+              Food -> colored (rgb 0.2 0.2 0.8) square
+              -- black empty
+              Empty -> colored CodeWorld.black square
               -- black wall
               Wall -> colored (rgb 0 0 0) square
 

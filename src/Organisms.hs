@@ -5,6 +5,7 @@ import Data.Function (on)
 import Data.List (find, sortBy)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust, isJust, mapMaybe)
+import System.Random (StdGen, randomR)
 import Types
 import Utilities
 
@@ -71,10 +72,10 @@ tryMove = tryUpdateOrganismWith move
       let anatomy' = anatomy organism
           dir = direction organism
           shifted c = c {coords = shiftTo dir (coords c)}
-       in organism
-            { anatomy = map shifted anatomy',
-              direction = nextDirection dir
-            }
+       in randomlyDirected
+            organism
+              { anatomy = map shifted anatomy'
+              }
 
 -- | Try to rotate at next direction
 tryRotate :: (Organism, World) -> (Organism, World)
@@ -85,17 +86,21 @@ tryRotate = tryUpdateOrganismWith rotate
           rotationRule (x, y) = (- y, x)
           rotated c = c {coords = rotationRule (coords c)}
        in organism
-            { anatomy = map rotated anatomy',
-              direction = nextDirection (direction organism)
+            { anatomy = map rotated anatomy'
             }
 
--- | Get next direction
--- North -> East -> South -> West -> repeat
-nextDirection :: Direction -> Direction
-nextDirection North = East
-nextDirection East = South
-nextDirection South = West
-nextDirection West = North
+-- | Sets organism direction to the next random one
+randomlyDirected :: Organism -> Organism
+randomlyDirected organism =
+  if d >= 5
+    then organism {direction = nextDirection, randomGen = gen'}
+    else organism {randomGen = gen}
+  where
+    directions =
+      let dir = direction organism
+       in filter (dir /=) [North, East, South, West]
+    (nextDirection, gen) = randomChoice (randomGen organism) directions
+    (d, gen') = randomR (0, 10 :: Int) gen
 
 addCellsAt :: [Coords] -> CellState -> World -> World
 addCellsAt cs state w =
@@ -183,16 +188,32 @@ addOrganism organism world = world {organisms = organisms'}
       let key = organismBodyCoords organism
        in Map.insert key organism (organisms world)
 
+-- | Mutates organism
+-- TODO
+mutate :: Organism -> (Organism, StdGen)
+mutate organism = (organism {foodCollected = 0, lifetime = 0}, randomGen organism)
+
 -- | Try to reproduce
 -- This also returns a created organism
 -- TODO
-tryReproduce :: (Organism, World) -> ((Organism, World), Maybe Organism)
+tryReproduce :: (Organism, World) -> (Organism, World)
 tryReproduce (organism, world)
-  | canReproduce = reproduce (organism, world)
-  | otherwise = ((organism, world), Nothing)
+  | canReproduce = reproduced
+  | otherwise = (organism, world)
   where
-    canReproduce = undefined
-    reproduce = undefined
+    -- Once an organism eats more food than amount of its body cells it will reproduce.
+    canReproduce =
+      foodCollected organism >= length (anatomy organism)
+
+    reproduced =
+      let (offspring, gen) = mutate organism
+          -- set offspring coordinates to the next available one
+          -- todo: try different options and find the best one,
+          -- currently it just tries to place offspring at coordinates shifted by 4 cells
+          offspring' = offspring {anatomy = map (\c -> c {coords = bimap (+ 4) (coords c)}) (anatomy offspring)}
+
+          updatedWorld = addOrganism offspring' world
+       in (organism {foodCollected = 0, randomGen = gen}, updatedWorld)
 
 -- | Returns cell at coordinates.
 -- if coordinates are out of bounds nothing is returned
@@ -219,14 +240,14 @@ lifecycle (organism, world)
   where
     -- Movers do not make food, but they can move
     moverLifecycle =
-      let moverSequence = (tryMove . tryRotate . tryEatFood)
+      let moverSequence = (tryMove . tryRotate . tryReproduce . tryEatFood)
        in case tryDie (organism, world) of
             (Nothing, w) -> (Nothing, w)
             (Just o, w) -> first Just $ moverSequence (o, w)
 
     -- Producers do not move, but they can make food
     producerLifecycle =
-      let producerSequence = (tryEatFood . tryMakeFood)
+      let producerSequence = (tryReproduce . tryEatFood . tryMakeFood)
        in case tryDie (organism, world) of
             (Nothing, w) -> (Nothing, w)
             (Just o, w) -> first Just $ producerSequence (o, w)
