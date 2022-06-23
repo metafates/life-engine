@@ -97,6 +97,13 @@ nextDirection East = South
 nextDirection South = West
 nextDirection West = North
 
+addCellsAt :: [Coords] -> CellState -> World -> World
+addCellsAt cs state w =
+  foldl
+    (\w c -> w {grid = Map.insert c (Cell state c) (grid w)})
+    w
+    cs
+
 -- | Kill organism if it has 0 hp
 tryDie :: (Organism, World) -> (Maybe Organism, World)
 tryDie (organism, world)
@@ -108,10 +115,10 @@ tryDie (organism, world)
     shouldDie =
       health organism == 0
         || lifetime' >= length (anatomy organism) * lifespanFactor organism
+
     worldWithoutOrganism =
-      world
-        { organisms = Map.delete (organismBodyCoords organism) (organisms world)
-        }
+      let coords = organismBodyCoords organism
+       in addCellsAt coords Food (world {organisms = Map.delete coords (organisms world)})
 
 -- | Activates producer cell
 tryMakeFood :: (Organism, World) -> (Organism, World)
@@ -142,7 +149,7 @@ tryEatFood (organism, world) =
     Just mouth -> handleFood $ filter ((==) Food . state) (cellsAround mouth)
   where
     cellsAround =
-      let neighbors = zipWith vectorSum around . repeat
+      let neighbors = zipWith vectorSum adjacent . repeat
        in mapMaybe (`cellAt` world) . neighbors . coords
 
     handleFood food =
@@ -153,7 +160,7 @@ tryEatFood (organism, world) =
               filter ((`notElem` foodCoords) . fst) $
                 Map.toList (grid world)
        in ( organism {foodCollected = foodCollected' + length food},
-            world {grid = updatedGrid}
+            addCellsAt (map coords food) Empty world {grid = updatedGrid}
           )
 
 -- | Gets organism at given coordinates of 1 cell
@@ -210,23 +217,16 @@ lifecycle (organism, world)
   | hasMover organism = moverLifecycle
   | otherwise = producerLifecycle
   where
-
     -- Movers do not make food, but they can move
     moverLifecycle =
-      case tryDie (organism, world) of
-        (Nothing, w) -> (Nothing, w)
-        (Just _, _) -> (Just mover, worldWithMover)
-    
-    -- Life cycle chain for movers
-    (mover, worldWithMover) =
-      (tryMove . tryRotate . tryEatFood) (organism, world)
+      let moverSequence = (tryMove . tryRotate . tryEatFood)
+       in case tryDie (organism, world) of
+            (Nothing, w) -> (Nothing, w)
+            (Just o, w) -> first Just $ moverSequence (o, w)
 
     -- Producers do not move, but they can make food
     producerLifecycle =
-      case tryDie (organism, world) of
-        (Nothing, w) -> (Nothing, w)
-        (Just _, _) -> (Just producer, worldWithProducer)
-    
-    -- Life cycle chain for producers
-    (producer, worldWithProducer) =
-      (tryEatFood . tryMakeFood) (organism, world)
+      let producerSequence = (tryEatFood . tryMakeFood)
+       in case tryDie (organism, world) of
+            (Nothing, w) -> (Nothing, w)
+            (Just o, w) -> first Just $ producerSequence (o, w)

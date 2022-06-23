@@ -17,10 +17,10 @@ defaultWorld = World grid' organisms'
                   [ Cell {state = Mouth, coords = (0, 0)},
                     Cell {state = Producer, coords = (0, 1)}
                   ],
-                health = 100,
+                health = 10,
                 direction = North,
                 foodCollected = 0,
-                lifetime = 100,
+                lifetime = 0,
                 mutationFactor = 1,
                 lifespanFactor = 1,
                 lookRange = 20,
@@ -29,12 +29,15 @@ defaultWorld = World grid' organisms'
           )
         ]
     grid' =
-      Map.fromList $
-        [ let xy = (x, y)
-           in (xy, Cell {state = Empty, coords = xy})
-          | x <- [-5 .. 5],
-            y <- [-5 .. 5]
-        ]
+      Map.insert (0, -1) (Cell Food (0, -1)) $
+        Map.insert (-1, 0) (Cell Food (-1, 0)) $
+          Map.insert (-1, -1) (Cell Food (-1, -1)) $
+            Map.fromList $
+              [ let xy = (x, y)
+                 in (xy, Cell {state = Empty, coords = xy})
+                | x <- [-10 .. 10],
+                  y <- [-10 .. 10]
+              ]
 
 -- | Make default engine for given world
 defaultEngineFor :: World -> Engine
@@ -44,12 +47,13 @@ defaultEngineFor w = Engine {world = w, fps = 60}
 applyLifecycle :: Map.Map [Coords] Organism -> World -> World
 applyLifecycle toVisit world
   | Map.null toVisit = world
-  | otherwise = case organism' of
-    Nothing -> applyLifecycle toVisit' world'
-    Just o -> applyLifecycle toVisit' $ addOrganism o world'
+  | otherwise =
+    case organism' of
+      Nothing -> applyLifecycle toVisit' world'
+      Just o -> applyLifecycle toVisit' $ addOrganism o world'
   where
     (coords, organism) = head $ Map.toList toVisit
-    toVisit' = Map.filterWithKey (\k _ -> k /= coords) toVisit
+    toVisit' = Map.delete coords toVisit
     (organism', world') = lifecycle (organism, world)
 
 -- | Update world state
@@ -59,8 +63,8 @@ tick world = applyLifecycle (organisms world) world
 -- | Update engine from given event
 updateEngine :: CodeWorld.Event -> Engine -> Engine
 updateEngine (CodeWorld.TimePassing seconds) engine
-  -- I hope this fps lock formula works...
-  | round (seconds * 1000) `rem` fps engine == 0 = updated
+  -- TODO: match first case once per second
+  | True = updated
   | otherwise = engine
   where
     updated = engine {world = tick (world engine)}

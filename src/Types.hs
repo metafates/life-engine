@@ -91,9 +91,9 @@ instance Drawable Cell where
               -- blue eye
               Eye -> colored (rgb 0.2 0.2 0.8) square
               -- light green food
-              Food -> colored (rgb 0.2 0.8 0.2) square
-              -- white empty
-              Empty -> colored (rgb 1 1 1) square
+              Food -> colored CodeWorld.green square
+              -- gray empty
+              Empty -> colored CodeWorld.gray square
               -- black wall
               Wall -> colored (rgb 0 0 0) square
 
