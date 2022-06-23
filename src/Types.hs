@@ -1,6 +1,7 @@
 module Types where
 
 import qualified CodeWorld
+import Common (cellSize)
 import Data.Function (on)
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -33,7 +34,6 @@ data CellState
 -- | Cell
 data Cell = Cell
   { state :: CellState,
-    size :: Double,
     coords :: Coords
   }
 
@@ -42,12 +42,11 @@ data Cell = Cell
 data Organism = Organism
   { anatomy :: [Cell],
     health :: Int,
-    moveDirection :: Maybe Direction,
-    rotateDirection :: Maybe Direction,
+    direction :: Direction,
     foodCollected :: Int,
-    lifetime :: Double,
+    lifetime :: Int,
     mutationFactor :: Double,
-    lifespanFactor :: Double,
+    lifespanFactor :: Int,
     lookRange :: Int,
     randomGen :: StdGen
   }
@@ -72,34 +71,31 @@ instance Drawable Cell where
   draw cell = positioned figure
     where
       positioned =
-        let (x', y') = bimap ((*) (size cell) . fromIntegral) (coords cell)
+        let (x', y') = bimap ((*) cellSize . fromIntegral) (coords cell)
          in CodeWorld.translated x' y'
-
-      size' = size cell
       figure =
-        let colored = CodeWorld.colored
-            square = CodeWorld.solidRectangle size' size'
-            rgba = CodeWorld.RGBA
-            white = CodeWorld.white
-            black = CodeWorld.black
-            pink = rgba 255 108 184 0.8
-            darkGreen = rgba 45 255 117 0.8
-            brown = rgba 142 104 68 0.8
-            red = rgba 240 72 72 0.8
-            lightBlue = rgba 150 240 243 0.8
-            lightGreen = rgba 150 243 160 0.8
-            gray = rgba 112 112 112 0.8
-            dilated = CodeWorld.dilated
+        let square = CodeWorld.solidRectangle cellSize cellSize
+            colored = CodeWorld.colored
+            rgb = CodeWorld.RGB
          in case state cell of
-              Mouth -> colored pink square
-              Producer -> colored darkGreen square
-              Mover -> colored brown square
-              Killer -> colored red square
-              Armor -> colored lightBlue square
-              Eye -> colored white square <> dilated 0.5 square
-              Food -> colored lightGreen square
-              Empty -> colored black square
-              Wall -> colored gray square
+              -- pink mouth
+              Mouth -> colored CodeWorld.pink square
+              -- green producer
+              Producer -> colored CodeWorld.green square
+              -- blue mover
+              Mover -> colored (rgb 0.2 0.2 0.8) square
+              -- red killer
+              Killer -> colored (rgb 0.8 0.2 0.2) square
+              -- yellow armor
+              Armor -> colored (rgb 0.8 0.8 0.2) square
+              -- gray eye
+              Eye -> colored (rgb 0.5 0.5 0.5) square
+              -- dark blue food
+              Food -> colored (rgb 0.2 0.2 0.8) square
+              -- black empty
+              Empty -> colored CodeWorld.black square
+              -- black wall
+              Wall -> colored (rgb 0 0 0) square
 
 instance Drawable World where
   draw w = ((<>) `on` CodeWorld.pictures) (livingCells w) (nonLivingCells w)
