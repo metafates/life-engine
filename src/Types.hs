@@ -38,7 +38,16 @@ data Cell = Cell
   }
 
 -- | Organism
--- TODO: write comments to describe each field
+-- | The organism consists of cells (anatomy)
+-- | Health parameter defines amount of an organism's health
+-- | Direction parameter defines where the organism move to at a given frame (west, east, north, south)
+-- | foodCollected is a parameter that shows amount of food eaten by an organism. 
+-- | (once an organism eats more food than amount of its body cells it will reproduce)
+-- | lifetime parameter shows how many frames a given organism has lived.
+-- | The length of an organism's life is equal to number of its cells multiplied by lifespan multiplier 
+-- | (100 by default but this number can alter because of mutations).
+-- | The eye looks forward and and sees the first cells within a certain range (lookRange).
+-- | randomGen is used for creating random direction for organisms (with a mover cell).
 data Organism = Organism
   { anatomy :: [Cell],
     health :: Int,
