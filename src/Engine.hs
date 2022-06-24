@@ -3,7 +3,7 @@ module Engine where
 import qualified CodeWorld
 import qualified Data.Map as Map
 import Organisms (addOrganism, lifecycle)
-import System.Random (mkStdGen)
+import System.Random (Random (random), StdGen, mkStdGen, randomR)
 import Types
 
 defaultWorld :: World
@@ -45,7 +45,7 @@ defaultWorld = World grid' organisms'
 
 -- | Make default engine for given world
 defaultEngineFor :: World -> Engine
-defaultEngineFor w = Engine {world = w, fps = 60}
+defaultEngineFor w = Engine {world = w, fps = 60, gen = mkStdGen 0}
 
 -- | Applies lifecycle for each organism
 applyLifecycle :: Map.Map [Coords] Organism -> World -> World
@@ -66,13 +66,14 @@ tick world = applyLifecycle (organisms world) world
 
 -- | Update engine from given event
 updateEngine :: CodeWorld.Event -> Engine -> Engine
-updateEngine (CodeWorld.TimePassing time) engine
+updateEngine _ engine
   -- TODO: match first case once per second
-  | True = updated
-  | otherwise = engine
+  | shouldUpdate = updated
+  | otherwise = engine {gen = gen'}
   where
-    updated = engine {world = tick (world engine)}
-updateEngine _ engine = engine
+    (n, gen') = randomR (0, 100 :: Int) (gen engine)
+    shouldUpdate = n > 90
+    updated = engine {world = tick (world engine), gen = gen'}
 
 -- | Start life engine
 -- TODO: use activityOf (or animationOf) later
