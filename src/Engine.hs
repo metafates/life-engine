@@ -11,7 +11,7 @@ defaultWorld = World grid' organisms'
   where
     organisms' =
       Map.fromList
-        [ ( [(0, 0), (0, 1)],
+        [ ( [(0, 0), (-1, 1), (1, -1)],
             Organism
               { anatomy =
                   [ Cell {state = Mouth, coords = (0, 0)},
@@ -23,7 +23,23 @@ defaultWorld = World grid' organisms'
                 foodCollected = 0,
                 lifetime = 0,
                 mutationFactor = 1,
-                lifespanFactor = 10,
+                lifespanFactor = 1,
+                lookRange = 20,
+                randomGen = mkStdGen 2
+              }
+          ),
+          ( [(-5, -5), (-6, -5)],
+            Organism
+              { anatomy =
+                  [ Cell {state = Mouth, coords = (-5, -5)},
+                    Cell {state = Mover, coords = (-6, -5)}
+                  ],
+                health = 10,
+                direction = North,
+                foodCollected = 0,
+                lifetime = 0,
+                mutationFactor = 1,
+                lifespanFactor = 3,
                 lookRange = 20,
                 randomGen = mkStdGen 2
               }
@@ -40,8 +56,8 @@ defaultWorld = World grid' organisms'
                     Map.fromList $
                       [ let xy = (x, y)
                          in (xy, Cell {state = Empty, coords = xy})
-                        | x <- [-10 .. 10],
-                          y <- [-10 .. 10]
+                        | x <- [-30 .. 30],
+                          y <- [-30 .. 30]
                       ]
 
 -- | Make default engine for given world
@@ -73,7 +89,7 @@ updateEngine _ engine
   | otherwise = engine {gen = gen'}
   where
     (n, gen') = randomR (0, 100 :: Int) (gen engine)
-    shouldUpdate = n > 90
+    shouldUpdate = n > 50
     updated = engine {world = tick (world engine), gen = gen'}
 
 -- | Start life engine
