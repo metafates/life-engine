@@ -66,11 +66,19 @@ Information that defines makeup and behavior of the parent goes to its offspring
 
 **If** an organism mutates it has 10% chance to alter other properties (movement range, brain decisions, probability of mutation itself)
 
-## Examples
+# Examples
 
-> Will be added later
+![](assets/pic1.png)
+*6 seconds after start, default configuration*
 
-## Build
+![](assets/pic2.png)
+*5 seconds after start, altered configuration: increased lifespan/mutation factors of first organisms*
+
+![](assets/pic3.png)
+*11 seconds after start, altered configuration: changed initial birth place of organisms, increased mutation factors*
+
+
+# Build
 
 Run
 `cabal run`
