@@ -61,7 +61,10 @@ data World = World
 
 data Engine = Engine
   { world :: World,
-    fps :: Int
+    fps :: Int,
+    -- | random gen used to update world
+    -- this is probably the worst way to do it, but it works
+    gen :: StdGen
   }
 
 class Drawable a where
