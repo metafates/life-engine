@@ -1,4 +1,4 @@
 module Common where
 
 cellSize :: Double
-cellSize = 1
+cellSize = 0.3

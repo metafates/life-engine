@@ -142,7 +142,7 @@ tryMakeFood (organism, world)
                    in if isFreeAt c world then Map.insert c f m else m
               )
               Map.empty
-          with = Map.union (grid world)
+          with = flip Map.union (grid world)
           updateGrid g = world {grid = g}
        in updateGrid . with . foodGrid
 
@@ -182,14 +182,20 @@ organismBodyCoords = sortBy (compare `on` integralCantor) . map coords . anatomy
 
 -- | Adds organism to the world
 addOrganism :: Organism -> World -> World
-addOrganism organism world = world {organisms = organisms'}
+addOrganism organism world
+  | isValidOrganismPosition organism world = world {organisms = organisms'}
+  | otherwise = world
   where
     organisms' =
       let key = organismBodyCoords organism
        in Map.insert key organism (organisms world)
 
+isValidOrganismPosition :: Organism -> World -> Bool
+isValidOrganismPosition organism world =
+  all (`isFreeAt` world) (organismBodyCoords organism)
+
 -- | Mutates organism
--- TODO
+-- TODO: make mutation happen and not just copy it
 mutate :: Organism -> (Organism, StdGen)
 mutate organism = (organism {foodCollected = 0, lifetime = 0}, randomGen organism)
 
@@ -207,13 +213,25 @@ tryReproduce (organism, world)
 
     reproduced =
       let (offspring, gen) = mutate organism
+
           -- set offspring coordinates to the next available one
           -- todo: try different options and find the best one,
           -- currently it just tries to place offspring at coordinates shifted by 4 cells
-          offspring' = offspring {anatomy = map (\c -> c {coords = bimap (+ 4) (coords c)}) (anatomy offspring)}
+          -- offspring' = offspring {anatomy = map (\c -> c {coords = bimap (+ 4) (coords c)}) (anatomy offspring)}
+          offspring' =
+            [ offspring {anatomy = map (\c -> c {coords = second (subtract 4) (coords c)}) (anatomy offspring)},
+              offspring {anatomy = map (\c -> c {coords = bimap (+ 4) (coords c)}) (anatomy offspring)},
+              offspring {anatomy = map (\c -> c {coords = second (+ 4) (coords c)}) (anatomy offspring)},
+              offspring {anatomy = map (\c -> c {coords = first (subtract 4) (coords c)}) (anatomy offspring)},
+              offspring {anatomy = map (\c -> c {coords = bimap (subtract 4) (coords c)}) (anatomy offspring)},
+              offspring {anatomy = map (\c -> c {coords = first (+ 4) (coords c)}) (anatomy offspring)}
+            ]
 
-          updatedWorld = addOrganism offspring' world
-       in (organism {foodCollected = 0, randomGen = gen}, updatedWorld)
+          updatedWorld = case find (`isValidOrganismPosition` world) offspring' of
+            Nothing -> world
+            Just o -> addOrganism o world
+       in -- updatedWorld = addOrganism offspring' world
+          (organism {foodCollected = 0, randomGen = gen}, updatedWorld)
 
 -- | Returns cell at coordinates.
 -- if coordinates are out of bounds nothing is returned
