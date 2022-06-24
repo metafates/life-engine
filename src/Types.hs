@@ -19,13 +19,20 @@ data Direction
   deriving (Eq)
 
 -- | State which cell could take
-data CellState
-  = Mouth
+data CellState =
+  -- | A crucial cell which eats food in directly adjacent coordinates
+    Mouth
+  -- | Generates food in adjacent cells
   | Producer
+  -- | Allows an organism to move and rotate randomly. 
   | Mover
+  -- | Harms other organisms when it touches them in directly adjacent cells
   | Killer
+  -- | Defends against the killer cell simply by ignoring its damage.
   | Armor
+  -- | Allows an organism to see and alter its movement based on its perceptions
   | Eye
+  -- | The cell can be eaten by an organism's mouth
   | Food
   | Empty
   | Wall
