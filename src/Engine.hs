@@ -1,6 +1,7 @@
 module Engine where
 
 import qualified CodeWorld
+import Common
 import qualified Data.Map as Map
 import Organisms (addOrganism, lifecycle)
 import System.Random (mkStdGen, randomR)
@@ -56,8 +57,8 @@ defaultWorld = World grid' organisms'
                     Map.fromList $
                       [ let xy = (x, y)
                          in (xy, Cell {state = Empty, coords = xy})
-                        | x <- [-30 .. 30],
-                          y <- [-30 .. 30]
+                        | x <- [- worldSizeX .. worldSizeX],
+                          y <- [- worldSizeY .. worldSizeY]
                       ]
 
 -- | Make default engine for given world
