@@ -182,11 +182,15 @@ organismBodyCoords = sortBy (compare `on` integralCantor) . map coords . anatomy
 
 -- | Adds organism to the world
 addOrganism :: Organism -> World -> World
-addOrganism organism world = world {organisms = organisms'}
+addOrganism organism world
+  | canAdd = world {organisms = organisms'}
+  | otherwise = world
   where
     organisms' =
       let key = organismBodyCoords organism
        in Map.insert key organism (organisms world)
+
+    canAdd = all (`isFreeAt` world) (organismBodyCoords organism)
 
 -- | Mutates organism
 -- TODO: make mutation happen and not just copy it
