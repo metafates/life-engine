@@ -3,7 +3,7 @@ module Engine where
 import qualified CodeWorld
 import qualified Data.Map as Map
 import Organisms (addOrganism, lifecycle)
-import System.Random (Random (random), StdGen, mkStdGen, randomR)
+import System.Random (mkStdGen, randomR)
 import Types
 
 defaultWorld :: World
@@ -15,7 +15,8 @@ defaultWorld = World grid' organisms'
             Organism
               { anatomy =
                   [ Cell {state = Mouth, coords = (0, 0)},
-                    Cell {state = Mover, coords = (0, 1)}
+                    Cell {state = Producer, coords = (-1, 1)},
+                    Cell {state = Producer, coords = (1, -1)}
                   ],
                 health = 10,
                 direction = North,

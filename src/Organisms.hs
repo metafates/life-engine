@@ -142,7 +142,7 @@ tryMakeFood (organism, world)
                    in if isFreeAt c world then Map.insert c f m else m
               )
               Map.empty
-          with = Map.union (grid world)
+          with = flip Map.union (grid world)
           updateGrid g = world {grid = g}
        in updateGrid . with . foodGrid
 
@@ -189,7 +189,7 @@ addOrganism organism world = world {organisms = organisms'}
        in Map.insert key organism (organisms world)
 
 -- | Mutates organism
--- TODO
+-- TODO: make mutation happen and not just copy it
 mutate :: Organism -> (Organism, StdGen)
 mutate organism = (organism {foodCollected = 0, lifetime = 0}, randomGen organism)
 
