@@ -4,11 +4,11 @@ import qualified CodeWorld
 import Common
 import qualified Data.Map as Map
 import Organisms (addOrganism, lifecycle)
-import System.Random (mkStdGen, randomR)
+import System.Random (StdGen, mkStdGen, newStdGen, randomR)
 import Types
 
-defaultWorld :: World
-defaultWorld = World grid' organisms'
+defaultWorld :: StdGen -> World
+defaultWorld gen = World grid' organisms'
   where
     organisms' =
       Map.fromList
@@ -26,14 +26,14 @@ defaultWorld = World grid' organisms'
                 mutationFactor = 1,
                 lifespanFactor = 1,
                 lookRange = 20,
-                randomGen = mkStdGen 2
+                randomGen = gen
               }
           ),
-          ( [(-5, -5), (-6, -5)],
+          ( [(-8, -5), (-9, -5)],
             Organism
               { anatomy =
-                  [ Cell {state = Mouth, coords = (-5, -5)},
-                    Cell {state = Mover, coords = (-6, -5)}
+                  [ Cell {state = Mouth, coords = (-8, -5)},
+                    Cell {state = Mover, coords = (-9, -5)}
                   ],
                 health = 10,
                 direction = North,
@@ -42,7 +42,7 @@ defaultWorld = World grid' organisms'
                 mutationFactor = 1,
                 lifespanFactor = 3,
                 lookRange = 20,
-                randomGen = mkStdGen 2
+                randomGen = gen
               }
           )
         ]
@@ -96,4 +96,6 @@ updateEngine _ engine
 -- | Start life engine
 -- TODO: use activityOf (or animationOf) later
 start :: IO ()
-start = CodeWorld.activityOf (defaultEngineFor defaultWorld) updateEngine draw
+start = do
+  gen <- newStdGen
+  CodeWorld.activityOf (defaultEngineFor (defaultWorld gen)) updateEngine draw
