@@ -94,7 +94,6 @@ updateEngine _ engine
     updated = engine {world = tick (world engine), gen = gen'}
 
 -- | Start life engine
--- TODO: use activityOf (or animationOf) later
 start :: IO ()
 start = do
   gen <- newStdGen
