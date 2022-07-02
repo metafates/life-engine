@@ -41,7 +41,7 @@ defaultWorld gen = World grid' organisms'
                 foodCollected = 0,
                 lifetime = 0,
                 mutationFactor = 1,
-                lifespanFactor = 3,
+                lifespanFactor = 10,
                 lookRange = 20,
                 randomGen = gen
               }
@@ -64,7 +64,7 @@ defaultWorld gen = World grid' organisms'
 
 -- | Make default engine for given world
 defaultEngineFor :: World -> Engine
-defaultEngineFor w = Engine {world = w, fps = 60, gen = mkStdGen 0}
+defaultEngineFor w = Engine {world = w, frequency = 0.2, timeAcc = 0}
 
 -- | Applies lifecycle for each organism
 applyLifecycle :: Map.Map [Coords] Organism -> World -> World
@@ -85,14 +85,13 @@ tick world = applyLifecycle (organisms world) world
 
 -- | Update engine from given event
 updateEngine :: CodeWorld.Event -> Engine -> Engine
-updateEngine _ engine
-  -- TODO: match first case once per second
+updateEngine (CodeWorld.TimePassing time) engine
   | shouldUpdate = updated
-  | otherwise = engine {gen = gen'}
+  | otherwise = engine {timeAcc = timeAcc engine + time}
   where
-    (n, gen') = randomR (0, 100 :: Int) (gen engine)
-    shouldUpdate = n > 50
-    updated = engine {world = tick (world engine), gen = gen'}
+    shouldUpdate = timeAcc engine - frequency engine > 0
+    updated = engine {world = tick (world engine), timeAcc = timeAcc engine - frequency engine}
+updateEngine _ engine = engine
 
 -- | Start life engine
 start :: IO ()

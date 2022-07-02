@@ -80,10 +80,8 @@ data World = World
 
 data Engine = Engine
   { world :: World,
-    fps :: Int,
-    -- | random gen used to update world
-    -- this is probably the worst way to do it, but it works
-    gen :: StdGen
+    frequency :: Double,
+    timeAcc :: Double
   }
 
 class Drawable a where
