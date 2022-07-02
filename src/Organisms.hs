@@ -4,7 +4,7 @@ import Data.Bifunctor (Bifunctor (first, second))
 import Data.Function (on)
 import Data.List (find, sortBy)
 import qualified Data.Map as Map
-import Data.Maybe (fromJust, isJust, mapMaybe, catMaybes)
+import Data.Maybe (catMaybes, fromJust, isJust, mapMaybe)
 import System.Random (StdGen, randomR)
 import Types
 import Utilities
@@ -169,21 +169,20 @@ tryEatFood (organism, world) =
           )
 
 tryKill :: (Organism, World) -> (Organism, World)
-tryKill (organism, world) = 
+tryKill (organism, world) =
   case find ((==) Killer . state) (anatomy organism) of
     Nothing -> error "Organism requires killer cell"
-    Just killer -> (organism, world')
-      where 
+    Just _ -> (organism, world')
+      where
         killersCells = filter ((==) Killer . state) (anatomy organism)
         killersCoords = concatMap (\c -> [coords c]) killersCells
         attackedCoords = concatMap (relativeTo adjacent) killersCoords
         maybeDamagedOrganisms = map (`organismAtCoords` world) attackedCoords
-        damagedOrganisms = map (\o -> o { health = subtract (health o) 1 }) $ filter (((/=) `on` organismBodyCoords) organism) (catMaybes maybeDamagedOrganisms)
+        damagedOrganisms = map (\o -> o {health = subtract (health o) 1}) $ filter (((/=) `on` organismBodyCoords) organism) (catMaybes maybeDamagedOrganisms)
 
-        world' = 
+        world' =
           let organisms' = Map.fromList (map (\o -> (organismBodyCoords o, o)) damagedOrganisms) `Map.union` organisms world
-            in world { organisms = organisms'}
-
+           in world {organisms = organisms'}
 
 -- | Gets organism at given coordinates of 1 cell
 organismAtCoords :: Coords -> World -> Maybe Organism
@@ -275,12 +274,13 @@ lifecycle (organism, world)
   where
     -- Movers do not make food, but they can move
     moverLifecycle =
-      let moverSequence = (tryMove . tryRotate . tryReproduce . tryEatFood)
+      let moverSequence = (tryMove . tryReproduce . tryEatFood)
        in case tryDie (organism, world) of
             (Nothing, w) -> (Nothing, w)
-            (Just o, w) -> if hasCellOfState Killer organism
-                            then first Just $ (moverSequence . tryKill) (o, w)
-                            else first Just $ moverSequence (o, w)
+            (Just o, w) ->
+              if hasCellOfState Killer organism
+                then first Just $ (moverSequence . tryKill) (o, w)
+                else first Just $ moverSequence (o, w)
 
     -- Producers do not move, but they can make food
     producerLifecycle =

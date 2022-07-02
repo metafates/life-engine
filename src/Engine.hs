@@ -29,47 +29,11 @@ defaultWorld gen = World grid' organisms'
                 randomGen = gen
               }
           ),
-          ( [(-8, -5), (-9, -5), (-9, -6)],
+          ( [(3, 2), (4, 2), (3, 3)],
             Organism
               { anatomy =
-                  [ Cell {state = Mouth, coords = (-8, -5)},
-                    Cell {state = Mover, coords = (-9, -5)},
-                    Cell {state = Killer, coords = (-9, -6)}
-                  ],
-                health = 10,
-                direction = North,
-                foodCollected = 0,
-                lifetime = 0,
-                mutationFactor = 1,
-                lifespanFactor = 10,
-                lookRange = 20,
-                randomGen = gen
-              }
-          ),
-          ( [(-4, -3), (-5, -3), (-4, -2)],
-            Organism
-              { anatomy =
-                  [ Cell {state = Mouth, coords = (-4, -3)},
-                    Cell {state = Mover, coords = (-5, -3)},
-                    Cell {state = Mouth, coords = (-4, -2)}
-                  ],
-                health = 10,
-                direction = South,
-                foodCollected = 0,
-                lifetime = 0,
-                mutationFactor = 1,
-                lifespanFactor = 10,
-                lookRange = 20,
-                randomGen = gen
-              }
-          ),
-          ( [(4, 3), (4, 4), (3, 3), (3, 2)],
-            Organism
-              { anatomy =
-                  [ Cell {state = Mouth, coords = (4, 3)},
-                    Cell {state = Producer, coords = (4, 4)},
-                    Cell {state = Producer, coords = (3, 3)},
-                    Cell {state = Producer, coords = (3, 2)}
+                  [ Cell {state = Mouth, coords = (3, 2)},
+                    Cell {state = Mover, coords = (4, 2)}
                   ],
                 health = 10,
                 direction = North,
@@ -81,6 +45,41 @@ defaultWorld gen = World grid' organisms'
                 randomGen = gen
               }
           )
+          -- ( [(-4, -3), (-5, -3), (-4, -2)],
+          --   Organism
+          --     { anatomy =
+          --         [ Cell {state = Mouth, coords = (-4, -3)},
+          --           Cell {state = Mover, coords = (-5, -3)},
+          --           Cell {state = Mouth, coords = (-4, -2)}
+          --         ],
+          --       health = 10,
+          --       direction = South,
+          --       foodCollected = 0,
+          --       lifetime = 0,
+          --       mutationFactor = 1,
+          --       lifespanFactor = 10,
+          --       lookRange = 20,
+          --       randomGen = gen
+          --     }
+          -- ),
+          -- ( [(4, 3), (4, 4), (3, 3), (3, 2)],
+          --   Organism
+          --     { anatomy =
+          --         [ Cell {state = Mouth, coords = (4, 3)},
+          --           Cell {state = Producer, coords = (4, 4)},
+          --           Cell {state = Producer, coords = (3, 3)},
+          --           Cell {state = Producer, coords = (3, 2)}
+          --         ],
+          --       health = 10,
+          --       direction = North,
+          --       foodCollected = 0,
+          --       lifetime = 0,
+          --       mutationFactor = 1,
+          --       lifespanFactor = 10,
+          --       lookRange = 20,
+          --       randomGen = gen
+          --     }
+          -- )
         ]
     grid' =
       Map.insert (0, -1) (Cell Food (0, -1)) $
@@ -99,7 +98,7 @@ defaultWorld gen = World grid' organisms'
 
 -- | Make default engine for given world
 defaultEngineFor :: World -> Engine
-defaultEngineFor w = Engine {world = w, frequency = 0.2, timeAcc = 0}
+defaultEngineFor w = Engine {world = w, frequency = 0.03, timeAcc = 0}
 
 -- | Applies lifecycle for each organism
 applyLifecycle :: Map.Map [Coords] Organism -> World -> World
