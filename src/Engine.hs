@@ -29,11 +29,12 @@ defaultWorld gen = World grid' organisms'
                 randomGen = gen
               }
           ),
-          ( [(-8, -5), (-9, -5)],
+          ( [(-8, -5), (-9, -5), (-9, -6)],
             Organism
               { anatomy =
                   [ Cell {state = Mouth, coords = (-8, -5)},
-                    Cell {state = Mover, coords = (-9, -5)}
+                    Cell {state = Mover, coords = (-9, -5)},
+                    Cell {state = Killer, coords = (-9, -6)}
                   ],
                 health = 10,
                 direction = North,
