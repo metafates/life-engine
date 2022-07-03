@@ -153,7 +153,7 @@ tryMakeFood (organism, world)
 tryEatFood :: (Organism, World) -> (Organism, World)
 tryEatFood (organism, world) =
   case find ((==) Mouth . state) (anatomy organism) of
-    Nothing -> error "Organism must have a mouth"
+    Nothing -> (organism, world)
     Just mouth -> handleFood $ filter ((==) Food . state) (cellsAround mouth)
   where
     cellsAround =
@@ -223,9 +223,31 @@ isValidOrganismPosition organism world =
 -- | Mutates organism
 -- TODO: make mutation happen and not just copy it
 mutate :: Organism -> (Organism, StdGen)
-mutate organism = (organism {foodCollected = 0, lifetime = 0, anatomy = anatomy'}, randomGen organism)
+mutate organism = (organism' {foodCollected = 0, lifetime = 0}, g)
   where
-    anatomy' = anatomy organism
+    (_, g) = next (randomGen organism')
+    organism' =
+      let (num, gen') = randomR (1, 3 :: Int) (randomGen organism)
+       in case num of
+            1 ->
+              let (cells, gen'') = replaceRandomCell gen' (anatomy organism)
+               in organism {randomGen = gen'', anatomy = cells}
+            _ -> organism
+
+    replaceRandomCell gen cells = (cells', gen'')
+      where
+        (cell, gen') = randomChoice gen cells
+        (state', gen'') = randomChoice gen' [Killer, Producer, Mouth, Mover]
+        cells' =
+          map
+            ( \c ->
+                if coords c == coords cell
+                  then c {state = state'}
+                  else c
+            )
+            cells
+
+-- anatomy organism
 
 -- | Try to reproduce
 -- This also returns a created organism
@@ -243,10 +265,6 @@ tryReproduce (organism, world)
       let (offspring, gen) = mutate organism
 
           -- set offspring coordinates to the next available one
-          -- todo: try different options and find the best one,
-          -- currently it just tries to place offspring at coordinates shifted by 4 cells
-          -- offspring' = offspring {anatomy = map (\c -> c {coords = bimap (+ 4) (coords c)}) (anatomy offspring)}
-
           offspring' =
             let variants =
                   [ second (subtract 4),

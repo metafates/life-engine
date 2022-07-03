@@ -44,3 +44,9 @@ shuffle gen list = randomElem : shuffle newGen newList
     newGen = snd randomTuple
     randomElem = list !! randomIndex
     newList = take randomIndex list ++ drop (randomIndex + 1) list
+
+giveRandomElement :: StdGen -> [a] -> a
+giveRandomElement gen list = list !! rand
+  where
+    n = length list
+    (rand, _) = randomR (0, n -1) gen
