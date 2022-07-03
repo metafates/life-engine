@@ -34,3 +34,13 @@ randomChoice :: StdGen -> [a] -> (a, StdGen)
 randomChoice g xs = (xs !! i, g')
   where
     (i, g') = randomR (0, length xs - 1) g
+
+shuffle :: StdGen -> [a] -> [a]
+shuffle _ [] = []
+shuffle gen list = randomElem : shuffle newGen newList
+  where
+    randomTuple = randomR (0, length list - 1) gen
+    randomIndex = fst randomTuple
+    newGen = snd randomTuple
+    randomElem = list !! randomIndex
+    newList = take randomIndex list ++ drop (randomIndex + 1) list
