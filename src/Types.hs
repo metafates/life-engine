@@ -107,7 +107,7 @@ instance Drawable Cell where
               -- red killer
               Killer -> colored (rgb 0.8 0.2 0.2) square
               -- yellow armor
-              Armor -> colored (rgb 0.8 0.8 0.2) square
+              Armor -> colored (rgb 255 255 255) square
               -- gray eye
               Eye -> colored (rgb 0.5 0.5 0.5) square
               -- dark blue food

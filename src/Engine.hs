@@ -33,7 +33,8 @@ defaultWorld gen = World grid' organisms'
             Organism
               { anatomy =
                   [ Cell {state = Mouth, coords = (3, 2)},
-                    Cell {state = Mover, coords = (4, 2)}
+                    Cell {state = Mover, coords = (4, 2)},
+                    Cell {state = Armor, coords = (3, 3)}
                   ],
                 health = 10,
                 direction = North,

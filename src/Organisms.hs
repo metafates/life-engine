@@ -16,6 +16,9 @@ hasCellOfState cell = asBool . find ((==) cell . state) . anatomy
     asBool Nothing = False
     asBool (Just _) = True
 
+hasArmor :: Organism -> Bool
+hasArmor = hasCellOfState Armor
+
 -- | Checks if organism has mover cell
 hasMover :: Organism -> Bool
 hasMover = hasCellOfState Mover
@@ -178,10 +181,18 @@ tryKill (organism, world) =
         killersCoords = concatMap (\c -> [coords c]) killersCells
         attackedCoords = concatMap (relativeTo adjacent) killersCoords
         maybeDamagedOrganisms = map (`organismAtCoords` world) attackedCoords
-        damagedOrganisms = map (\o -> o {health = subtract (health o) 1}) $ filter (((/=) `on` organismBodyCoords) organism) (catMaybes maybeDamagedOrganisms)
+        damagedOrganisms = map (\o -> o {health = subtract (health o) 4}) $ filter f (catMaybes maybeDamagedOrganisms)
+          where
+            f = \o -> ((/=) `on` organismBodyCoords) organism o && not (hasArmor o)
+      
+        withArmor = filter hasArmor damagedOrganisms
+        withoutArmor = map removeArmor withArmor
+          where
+            removeArmor o = o {anatomy = filter (\c -> state c /= Armor) (anatomy o)}
+    
 
         world' =
-          let organisms' = Map.fromList (map (\o -> (organismBodyCoords o, o)) damagedOrganisms) `Map.union` organisms world
+          let organisms' = Map.fromList (map (\o -> (organismBodyCoords o, o)) withoutArmor) `Map.union` Map.fromList (map (\o -> (organismBodyCoords o, o)) damagedOrganisms) `Map.union` organisms world
            in world {organisms = organisms'}
 
 -- | Gets organism at given coordinates of 1 cell
