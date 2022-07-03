@@ -50,3 +50,12 @@ giveRandomElement gen list = list !! rand
   where
     n = length list
     (rand, _) = randomR (0, n -1) gen
+
+removeRandomElement :: StdGen -> [a] -> [a]
+removeRandomElement _ [] = []
+removeRandomElement gen list = deleteAt randomIndex list
+  where
+    (randomIndex, _) = randomR (0, length list) gen
+
+    deleteAt index xs = left ++ right
+      where (left, _: right) = splitAt index xs
