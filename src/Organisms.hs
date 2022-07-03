@@ -6,7 +6,7 @@ import Data.List (find, sortBy)
 import qualified Data.Map as Map
 import Data.Maybe (catMaybes, fromJust, isJust, mapMaybe)
 import System.Random (StdGen, next, randomR)
-import Control.Monad.Random 
+import Control.Monad.Random
 import Types
 import Utilities
 
@@ -224,7 +224,7 @@ isValidOrganismPosition organism world =
 -- | Mutates organism
 -- TODO: make mutation happen and not just copy it
 mutate :: Organism -> (Organism, StdGen)
-mutate organism = (organism' {foodCollected = 0, lifetime = 0}, g)
+mutate organism = (organism' {foodCollected = 0, lifetime = 0, mutationFactor = 2 * mutationFactor organism}, g)
   where
     (_, g) = next (randomGen organism')
     organism' =
@@ -238,7 +238,7 @@ mutate organism = (organism' {foodCollected = 0, lifetime = 0}, g)
             3 -> let (cells, gen'') = replaceRandomCell gen' (anatomy organism)
                in organism {randomGen = gen'', anatomy = cells}
             _ -> organism
-    
+
     removeRandomCell gen cells = (cells', gen'')
       where
         (_, gen') = randomChoice gen cells
