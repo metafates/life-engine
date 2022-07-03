@@ -223,7 +223,9 @@ isValidOrganismPosition organism world =
 -- | Mutates organism
 -- TODO: make mutation happen and not just copy it
 mutate :: Organism -> (Organism, StdGen)
-mutate organism = (organism {foodCollected = 0, lifetime = 0}, randomGen organism)
+mutate organism = (organism {foodCollected = 0, lifetime = 0, anatomy = anatomy'}, randomGen organism)
+  where
+    anatomy' = anatomy organism
 
 -- | Try to reproduce
 -- This also returns a created organism
@@ -235,7 +237,7 @@ tryReproduce (organism, world)
   where
     -- Once an organism eats more food than amount of its body cells it will reproduce.
     canReproduce =
-      foodCollected organism >= length (anatomy organism)
+      foodCollected organism >= length (anatomy organism) * 2
 
     reproduced =
       let (offspring, gen) = mutate organism

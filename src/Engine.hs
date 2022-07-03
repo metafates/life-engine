@@ -29,19 +29,18 @@ defaultWorld gen = World grid' organisms'
                 randomGen = gen
               }
           ),
-          ( [(3, 2), (4, 2), (3, 3)],
+          ( [(3, 2), (4, 2)],
             Organism
               { anatomy =
                   [ Cell {state = Mouth, coords = (3, 2)},
-                    Cell {state = Mover, coords = (4, 2)},
-                    Cell {state = Armor, coords = (3, 3)}
+                    Cell {state = Mover, coords = (4, 2)}
                   ],
                 health = 10,
                 direction = North,
                 foodCollected = 0,
                 lifetime = 0,
                 mutationFactor = 1,
-                lifespanFactor = 10,
+                lifespanFactor = 3,
                 lookRange = 20,
                 randomGen = gen
               }
