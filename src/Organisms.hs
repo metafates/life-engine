@@ -216,16 +216,17 @@ tryReproduce (organism, world)
 
           -- set offspring coordinates to the next available one
           -- todo: try different options and find the best one,
-          -- currently it just tries to place offspring at coordinates shifted by 4 cells
-          -- offspring' = offspring {anatomy = map (\c -> c {coords = bimap (+ 4) (coords c)}) (anatomy offspring)}
           offspring' =
-            [ offspring {anatomy = map (\c -> c {coords = second (subtract 4) (coords c)}) (anatomy offspring)},
-              offspring {anatomy = map (\c -> c {coords = bimap (+ 4) (coords c)}) (anatomy offspring)},
-              offspring {anatomy = map (\c -> c {coords = second (+ 4) (coords c)}) (anatomy offspring)},
-              offspring {anatomy = map (\c -> c {coords = first (subtract 4) (coords c)}) (anatomy offspring)},
-              offspring {anatomy = map (\c -> c {coords = bimap (subtract 4) (coords c)}) (anatomy offspring)},
-              offspring {anatomy = map (\c -> c {coords = first (+ 4) (coords c)}) (anatomy offspring)}
-            ]
+            let variants =
+                  [ second (subtract 4),
+                    bimap (+ 4),
+                    second (+ 4),
+                    second (+ 4),
+                    first (subtract 4),
+                    bimap (subtract 4),
+                    first (+ 4)
+                  ]
+             in map (\f -> offspring {anatomy = map (\c -> c {coords = f (coords c)}) (anatomy offspring)}) variants
 
           updatedWorld = case find (`isValidOrganismPosition` world) offspring' of
             Nothing -> world
