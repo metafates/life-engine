@@ -312,7 +312,7 @@ isFreeAt coords world = toBool $ cellAt coords world
 -- | Organism lifecycle
 lifecycle :: (Organism, World) -> (Maybe Organism, World)
 lifecycle (organism, world)
-  | hasCellOfState Mover organism = moverLifecycle
+  | hasCellOfState Mover organism = (Just organism, world)
   | otherwise = producerLifecycle
   where
     -- Movers do not make food, but they can move
