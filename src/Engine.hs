@@ -40,7 +40,7 @@ defaultWorld gen = World grid' organisms'
                 foodCollected = 0,
                 lifetime = 0,
                 mutationFactor = 1,
-                lifespanFactor = 2,
+                lifespanFactor = 10,
                 lookRange = 20,
                 randomGen = gen
               }
