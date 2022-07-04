@@ -1,12 +1,12 @@
 module Organisms where
 
+import Control.Monad.Random
 import Data.Bifunctor (Bifunctor (first, second))
 import Data.Function (on)
 import Data.List (find, sortBy)
 import qualified Data.Map as Map
 import Data.Maybe (catMaybes, fromJust, isJust, mapMaybe)
 import System.Random (StdGen, next, randomR)
-import Control.Monad.Random
 import Types
 import Utilities
 
@@ -228,27 +228,26 @@ mutate organism = (organism' {foodCollected = 0, lifetime = 0, mutationFactor = 
   where
     (_, g) = next (randomGen organism')
     organism' =
-      let (num, gen') = randomR (1, 3 :: Int) (randomGen organism)
+      let (num, gen') = randomR (1, 6 :: Int) (randomGen organism)
        in case num of
             1 ->
               let (cells, gen'') = removeRandomCell gen' (anatomy organism)
                in organism {randomGen = gen'', anatomy = cells}
-            2 -> let (cells, gen'') = removeRandomCell gen' (anatomy organism)
-               in organism {randomGen = gen'', anatomy = cells}
-            3 -> let (cells, gen'') = replaceRandomCell gen' (anatomy organism)
+            2 ->
+              let (cells, gen'') = replaceRandomCell gen' (anatomy organism)
                in organism {randomGen = gen'', anatomy = cells}
             _ -> organism
 
     removeRandomCell gen cells = (cells', gen'')
       where
         (_, gen') = randomChoice gen cells
-        (_', gen'') = randomChoice gen' [Killer, Producer, Mouth, Mover]
+        (_', gen'') = randomChoice gen' [Killer, Producer, Mover]
         cells' = removeRandomElement gen cells
 
     replaceRandomCell gen cells = (cells', gen'')
       where
         (cell, gen') = randomChoice gen cells
-        (state', gen'') = randomChoice gen' [Killer, Producer, Mouth, Mover]
+        (state', gen'') = randomChoice gen' [Killer, Producer, Mover]
         cells' =
           map
             ( \c ->

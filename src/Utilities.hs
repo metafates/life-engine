@@ -57,5 +57,7 @@ removeRandomElement gen list = deleteAt randomIndex list
   where
     (randomIndex, _) = randomR (0, length list) gen
 
-    deleteAt index xs = left ++ right
-      where (left, _: right) = splitAt index xs
+    deleteAt index xs =
+      case splitAt index xs of
+        (left, _ : right) -> left ++ right
+        (left, []) -> left
