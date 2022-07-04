@@ -223,10 +223,9 @@ isValidOrganismPosition organism world =
 
 -- | Mutates organism
 -- TODO: make mutation happen and not just copy it
-mutate :: Organism -> (Organism, StdGen)
-mutate organism = (organism' {foodCollected = 0, lifetime = 0, mutationFactor = 2 * mutationFactor organism}, g)
+mutate :: Organism -> Organism
+mutate organism = organism' {foodCollected = 0, lifetime = 0, mutationFactor = 2 * mutationFactor organism}
   where
-    (_, g) = next (randomGen organism')
     organism' =
       let (num, gen') = randomR (1, 6 :: Int) (randomGen organism)
        in case num of
@@ -236,12 +235,11 @@ mutate organism = (organism' {foodCollected = 0, lifetime = 0, mutationFactor = 
             2 ->
               let (cells, gen'') = replaceRandomCell gen' (anatomy organism)
                in organism {randomGen = gen'', anatomy = cells}
-            _ -> organism
+            _ -> organism {randomGen = gen'}
 
-    removeRandomCell gen cells = (cells', gen'')
+    removeRandomCell gen cells = (cells', gen')
       where
-        (_, gen') = randomChoice gen cells
-        (_', gen'') = randomChoice gen' [Killer, Producer, Mover]
+        (_, gen') = next gen
         cells' = removeRandomElement gen cells
 
     replaceRandomCell gen cells = (cells', gen'')
@@ -257,8 +255,6 @@ mutate organism = (organism' {foodCollected = 0, lifetime = 0, mutationFactor = 
             )
             cells
 
--- anatomy organism
-
 -- | Try to reproduce
 -- This also returns a created organism
 -- TODO
@@ -269,10 +265,11 @@ tryReproduce (organism, world)
   where
     -- Once an organism eats more food than amount of its body cells it will reproduce.
     canReproduce =
-      foodCollected organism >= length (anatomy organism) * 2
+      foodCollected organism >= length (anatomy organism)
 
     reproduced =
-      let (offspring, gen) = mutate organism
+      let offspring = mutate organism
+          (_, gen') = next (randomGen offspring)
 
           -- set offspring coordinates to the next available one
           offspring' =
@@ -287,11 +284,11 @@ tryReproduce (organism, world)
                   ]
              in map (\f -> offspring {anatomy = map (\c -> c {coords = f (coords c)}) (anatomy offspring)}) variants
 
-          updatedWorld = case find (`isValidOrganismPosition` world) (shuffle gen offspring') of
+          updatedWorld = case find (`isValidOrganismPosition` world) (shuffle gen' offspring') of
             Nothing -> world
             Just o -> addOrganism o world
 
-          (_, gen') = next gen
+          (_, gen'') = next gen'
        in -- updatedWorld = addOrganism offspring' world
           (organism {foodCollected = 0, randomGen = gen'}, updatedWorld)
 
