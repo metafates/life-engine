@@ -1,10 +1,10 @@
 module Common where
 
 cellSize :: Double
-cellSize = 0.3
+cellSize = 0.15
 
 worldSizeX :: Int
-worldSizeX = 50
+worldSizeX = 100
 
 worldSizeY :: Int
-worldSizeY = 30
+worldSizeY = 60

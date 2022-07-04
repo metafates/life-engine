@@ -63,7 +63,7 @@ data Organism = Organism
     mutationFactor :: Double,
     -- | The length of an organism's life is equal to number of its cells multiplied by lifespan multiplier
     -- (100 by default but this number can alter because of mutations).
-    lifespanFactor :: Int,
+    lifespanFactor :: Double,
     -- | The eye looks forward and and sees the first cells within a certain range (lookRange).
     lookRange :: Int,
     -- | randomGen is used for creating random direction for organisms (with a mover cell).
@@ -113,7 +113,7 @@ instance Drawable Cell where
               -- dark blue food
               Food -> colored (rgb 0.2 0.2 0.8) square
               -- black empty
-              Empty -> colored CodeWorld.black square
+              Empty -> CodeWorld.blank
               -- black wall
               Wall -> colored (rgb 0 0 0) square
 

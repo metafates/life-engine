@@ -123,7 +123,7 @@ tryDie (organism, world)
     -- Organism can either die from having 0 hp or from getting too old
     shouldDie =
       health organism == 0
-        || lifetime' >= length (anatomy organism) * lifespanFactor organism
+        || fromIntegral lifetime' >= fromIntegral (length (anatomy organism)) * lifespanFactor organism
 
     worldWithoutOrganism =
       let coords = organismBodyCoords organism
