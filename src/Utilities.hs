@@ -55,7 +55,8 @@ removeRandomElement :: StdGen -> [a] -> [a]
 removeRandomElement _ [] = []
 removeRandomElement gen list = deleteAt randomIndex list
   where
-    (randomIndex, _) = randomR (0, length list) gen
+    (randomIndex, _) = randomR (1, length list - 2) gen
 
-    deleteAt index xs = left ++ right
-      where (left, _: right) = splitAt index xs
+    deleteAt index xs = case splitAt index xs of
+      (left, []) -> left
+      (left, _ : right) -> left ++ right
