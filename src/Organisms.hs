@@ -257,7 +257,6 @@ mutate organism = organism' {foodCollected = 0, lifetime = 0, mutationFactor = 2
 
 -- | Try to reproduce
 -- This also returns a created organism
--- TODO
 tryReproduce :: (Organism, World) -> (Organism, World)
 tryReproduce (organism, world)
   | canReproduce = reproduced
@@ -312,7 +311,7 @@ isFreeAt coords world = toBool $ cellAt coords world
 -- | Organism lifecycle
 lifecycle :: (Organism, World) -> (Maybe Organism, World)
 lifecycle (organism, world)
-  | hasCellOfState Mover organism = (Just organism, world)
+  | hasCellOfState Mover organism = moverLifecycle
   | otherwise = producerLifecycle
   where
     -- Movers do not make food, but they can move
